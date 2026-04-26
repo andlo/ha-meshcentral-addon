@@ -1,0 +1,32 @@
+{
+  "name": "MeshCentral",
+  "version": "0.1.0",
+  "slug": "meshcentral",
+  "description": "Self-hosted remote device management — monitor and control your PCs from Home Assistant",
+  "url": "https://github.com/andlo/ha-meshcentral-addon",
+  "arch": ["aarch64", "amd64", "armhf", "armv7", "i386"],
+  "startup": "application",
+  "boot": "auto",
+  "ports": {
+    "443/tcp": 4430
+  },
+  "ports_description": {
+    "443/tcp": "MeshCentral web interface (HTTPS)"
+  },
+  "options": {
+    "data_path": "/data/meshcentral-data",
+    "hostname": "",
+    "allow_device_sharing": false
+  },
+  "schema": {
+    "data_path": "str",
+    "hostname": "str",
+    "allow_device_sharing": "bool"
+  },
+  "map": [
+    "data:rw"
+  ],
+  "image": "ghcr.io/andlo/ha-meshcentral-addon/meshcentral",
+  "homeassistant_api": false,
+  "hassio_api": false
+}
