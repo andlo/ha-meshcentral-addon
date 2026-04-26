@@ -26,12 +26,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Get version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=dev" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build and push
-        uses: home-assistant/builder@2024.03.5
+        uses: docker/build-push-action@v5
         with:
-          args: |
-            --${{ matrix.arch }} \
-            --target /data/meshcentral \
-            --image "ha-meshcentral-addon/meshcentral" \
-            --docker-hub "ghcr.io/andlo" \
-            --version ${{ github.ref_name }}
+          context: ./meshcentral
+          file: ./meshcentral/Dockerfile
+          platforms: linux/${{ matrix.arch == 'amd64' && 'amd64' || matrix.arch == 'aarch64' && 'arm64' || matrix.arch == 'armhf' && 'arm/v6' || matrix.arch == 'armv7' && 'arm/v7' || 'i386' }}
+          push: true
+          tags: ghcr.io/andlo/ha-meshcentral-addon/meshcentral-${{ matrix.arch }}:${{ steps.version.outputs.version }}
+          build-args: |
+            BUILD_FROM=ghcr.io/home-assistant/${{ matrix.arch }}-base:latest
