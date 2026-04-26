@@ -46,8 +46,8 @@ jobs:
         with:
           context: ./meshcentral
           file: ./meshcentral/Dockerfile
-          platforms: linux/${{ matrix.arch == 'amd64' && 'amd64' || matrix.arch == 'aarch64' && 'arm64' || matrix.arch == 'armhf' && 'arm/v6' || matrix.arch == 'armv7' && 'arm/v7' || 'i386' }}
+          platforms: linux/${{ matrix.arch == 'amd64' && 'amd64' || matrix.arch == 'aarch64' && 'arm64' || matrix.arch == 'armhf' && 'arm/v6' || matrix.arch == 'armv7' && 'arm/v7' || '386' }}
           push: true
-          tags: ghcr.io/andlo/ha-meshcentral-addon/meshcentral-${{ matrix.arch }}:${{ steps.version.outputs.version }}
+          tags: ghcr.io/${{ github.repository_owner }}/meshcentral-addon-${{ matrix.arch }}:${{ steps.version.outputs.version }}
           build-args: |
             BUILD_FROM=ghcr.io/home-assistant/${{ matrix.arch }}-base:latest

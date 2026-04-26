@@ -26,7 +26,7 @@
   "map": [
     "data:rw"
   ],
-  "image": "ghcr.io/andlo/ha-meshcentral-addon/meshcentral-{arch}",
+  "image": "ghcr.io/andlo/meshcentral-addon-{arch}",
   "homeassistant_api": false,
   "hassio_api": false
 }
