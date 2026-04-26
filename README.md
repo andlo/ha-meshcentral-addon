@@ -87,7 +87,8 @@ Forward port `4430` on your router to your HA host IP.
 | Option | Default | Description |
 |--------|---------|-------------|
 | `data_path` | `/data/meshcentral-data` | Where MeshCentral stores its data |
-| `hostname` | *(auto)* | Public hostname for agent connections — set this to your external URL (Cloudflare, Nabu Casa etc.) |
+| `hostname` | *(auto)* | Public hostname for agent connections — set this to your external URL |
+| `cert_url` | *(empty)* | **Required for external agent connections** — set to your full external URL (e.g. `https://mesh.yourdomain.com`). MeshCentral uses this to verify agent connections. Without this, agents outside your local network cannot connect. |
 | `allow_device_sharing` | `false` | Allow device sharing with other users |
 
 ## Ports

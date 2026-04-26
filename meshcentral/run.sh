@@ -3,6 +3,7 @@
 # Read config from HA add-on options
 HOSTNAME=$(bashio::config 'hostname')
 DATA_PATH=$(bashio::config 'data_path')
+CERT_URL=$(bashio::config 'cert_url')
 ALLOW_SHARING=$(bashio::config 'allow_device_sharing')
 
 # Use HA hostname if not set
@@ -27,7 +28,6 @@ if [ ! -f "$CONFIG_FILE" ]; then
     "port": 443,
     "redirPort": 80,
     "tlsOffload": true,
-    "_comment_tlsOffload": "Set to true because HA handles TLS via Ingress/Nabu Casa",
     "selfUpdate": false,
     "cleanErrorLog": 5
   },
@@ -36,7 +36,8 @@ if [ ! -f "$CONFIG_FILE" ]; then
       "title": "MeshCentral",
       "title2": "Home Assistant",
       "newAccounts": false,
-      "_comment_newAccounts": "Set to true only to create your first admin account, then set back to false",
+      "_comment_newAccounts": "Set to true temporarily to create your first admin account",
+      "certUrl": "${CERT_URL}",
       "mstsc": false
     }
   }

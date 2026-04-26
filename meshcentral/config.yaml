@@ -16,11 +16,13 @@
   "options": {
     "data_path": "/data/meshcentral-data",
     "hostname": "",
+    "cert_url": "",
     "allow_device_sharing": false
   },
   "schema": {
     "data_path": "str",
     "hostname": "str",
+    "cert_url": "str",
     "allow_device_sharing": "bool"
   },
   "map": [
