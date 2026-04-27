@@ -82,17 +82,21 @@ If you have [Nabu Casa](https://www.nabucasa.com/) (Home Assistant Cloud):
 
 Forward port `4430` on your router to your HA host IP.
 
+## Data storage
+
+All MeshCentral data is kept under the configured `data_path`:
+
+FolderContents`data_path/`MeshCentral database and config`data_path/meshcentral-files/`Device files`data_path/meshcentral-backups/`Automatic backups`data_path/meshcentral-recordings/`Session recordings
+
+All folders are included in HA's standard backup.
+
+> **Note:** The `meshcentral-web` folder cannot be redirected (MeshCentral limitation) and will be created next to the add-on installation.
+
 ## Configuration
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `data_path` | `/data/meshcentral-data` | Where MeshCentral stores its data |
-| `hostname` | *(auto)* | Public hostname for agent connections — set this to your external URL |
-| `cert_url` | *(empty)* | **Required for external agent connections** — set to your full external URL (e.g. `https://mesh.yourdomain.com`). MeshCentral uses this to verify agent connections. Without this, agents outside your local network cannot connect. |
-| `allow_device_sharing` | `false` | Allow device sharing with other users |
+OptionDefaultDescription`data_path/data/meshcentral-data`Where MeshCentral stores its data`hostname`*(auto*)Public hostname for agent connections — set this to your external URL`cert_url`*(empty*)**Required for external agent connections** — set to your full external URL (e.g. `https://mesh.yourdomain.com`). MeshCentral uses this to verify agent connections. Without this, agents outside your local network cannot connect.`allow_device_sharingfalse`Allow device sharing with other users
 
 ## Ports
-
 | Port | Description |
 |------|-------------|
 | `4430/tcp` | MeshCentral web interface |
