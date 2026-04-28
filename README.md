@@ -1,9 +1,10 @@
 # MeshCentral Add-on for Home Assistant
 
-[![GitHub Release](https://img.shields.io/github/release/andlo/ha-meshcentral-addon.svg)](https://github.com/andlo/ha-meshcentral-addon/releases)
-[![License](https://img.shields.io/github/license/andlo/ha-meshcentral-addon.svg)](LICENSE)
+[![GitHub Release](https://img.shields.io/github/release/andlo/ha-meshcentral-addon.svg)](https://github.com/andlo/ha-meshcentral-addon/releases)[![License](https://img.shields.io/github/license/andlo/ha-meshcentral-addon.svg)](LICENSE)
 
 Run [MeshCentral](https://meshcentral.com) as a Home Assistant add-on — the free, open-source remote device management platform. Monitor and control all your Windows, Linux and macOS computers directly from Home Assistant.
+
+![MeshCentral add-on in the HA add-on store](screenshots/addon-store-card.png)
 
 ## What is MeshCentral?
 
@@ -16,6 +17,8 @@ When combined with the [MeshCentral HA integration](https://github.com/andlo/ha-
 - Automate based on PC state (turn on desk lamp when PC comes online, cut power when it shuts down)
 - Monitor Windows Defender, firewall and antivirus status
 - Hardware sensors: CPU, GPU, RAM, disk
+
+![PC devices dashboard in Home Assistant](screenshots/dashboard-pc.png)
 
 ## Quick start (local network)
 
@@ -30,6 +33,8 @@ This is all you need to get up and running on your local network:
 7. **Install agents** on your computers — go to **My Devices → Add Device** in MeshCentral
 
 That's it. No JSON editing required.
+
+![MeshCentral add-on info page](screenshots/addon-info.png)
 
 ## External access
 
@@ -52,6 +57,8 @@ Forward port `4430` on your router to your HA host and use your external IP or d
 ## Install the HA integration
 
 Install the [MeshCentral integration](https://github.com/andlo/ha-meshcentral) via HACS to get HA entities for your devices.
+
+![MeshCentral integration with 8 devices and 202 entities](screenshots/integration-devices.png)
 
 Settings for the integration:
 - **Host:** `homeassistant.local` (or your HA IP)
