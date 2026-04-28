@@ -1,6 +1,10 @@
 # MeshCentral Add-on for Home Assistant
 
-[![GitHub Release](https://img.shields.io/github/release/andlo/ha-meshcentral-addon.svg)](https://github.com/andlo/ha-meshcentral-addon/releases)[![License](https://img.shields.io/github/license/andlo/ha-meshcentral-addon.svg)](LICENSE)
+[![GitHub Release](https://img.shields.io/github/release/andlo/ha-meshcentral-addon.svg)](https://github.com/andlo/ha-meshcentral-addon/releases)
+[![License](https://img.shields.io/github/license/andlo/ha-meshcentral-addon.svg)](LICENSE)
+[![Project Maintenance](https://img.shields.io/badge/maintainer-%40andlo-blue.svg)](https://github.com/andlo)
+[![GitHub Actions](https://github.com/andlo/ha-meshcentral-addon/actions/workflows/build.yaml/badge.svg)](https://github.com/andlo/ha-meshcentral-addon/actions/workflows/build.yaml)
+[![Buy me a coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/andlo)
 
 Run [MeshCentral](https://meshcentral.com) as a Home Assistant add-on — the free, open-source remote device management platform. Monitor and control all your Windows, Linux and macOS computers directly from Home Assistant.
 
@@ -27,7 +31,7 @@ This is all you need to get up and running on your local network:
 1. **Add this repository** — go to **Settings → Add-ons → Add-on Store**, click ⋮ → **Repositories**, add `https://github.com/andlo/ha-meshcentral-addon`
 2. **Install MeshCentral** from the store
 3. **Start the add-on** — default settings work out of the box for local use
-4. **Open the web interface** at `http://homeassistant.local:4430`
+4. **Open the web interface** — see [Connecting to MeshCentral](#connecting-to-meshcentral) below
 5. **Create your admin account** — account creation is enabled by default on first run
 6. **Disable new accounts** — go to the add-on **Configuration** tab, set `new_accounts` to `false`, restart the add-on
 7. **Install agents** on your computers — go to **My Devices → Add Device** in MeshCentral
@@ -38,9 +42,30 @@ That's it. No JSON editing required.
 
 ![MeshCentral add-on configuration — all settings available in the HA UI](screenshots/addon-configuration.png)
 
+## Connecting to MeshCentral
+
+MeshCentral runs its own HTTPS server with a self-signed certificate. When you start the add-on, the **Log** tab will show the exact URLs:
+
+```
+ Open in browser (accept certificate warning):
+   https://192.168.x.x:4430
+ Or via HTTP redirect:
+   http://192.168.x.x:4431
+```
+
+The easiest way to connect is via **HTTP on port 4431** — your browser will automatically be redirected to HTTPS. You will see a certificate warning the first time (because the certificate is self-signed) — click **Advanced → Proceed** to continue. This is normal and safe on your local network.
+
+Alternatively, go directly to `https://homeassistant.local:4430`.
+
+| Port | Description |
+|------|-------------|
+| `4430` | MeshCentral HTTPS web interface |
+| `4431` | HTTP → redirects to HTTPS automatically |
+| `4433` | Intel AMT / MPS port |
+
 ## External access
 
-To reach MeshCentral and your agents from outside your home network, you need to tell MeshCentral its public address. Set these two options in the **Configuration** tab:
+To reach MeshCentral and your agents from outside your home network, set these two options in the **Configuration** tab:
 
 | Option | What to set |
 |--------|-------------|
@@ -94,7 +119,7 @@ All settings are in the add-on **Configuration** tab. No JSON files to edit. The
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `session_key` | *(auto)* | Secret key for session cookies. Leave empty to auto-generate (changes on each restart) |
+| `session_key` | *(auto)* | Secret key for session cookies. Leave empty to auto-generate |
 | `session_time` | `60` | Session duration in minutes |
 | `tls_offload` | `false` | Set to `true` only if a reverse proxy handles HTTPS in front of MeshCentral |
 | `trusted_proxy` | *(empty)* | IPs allowed to send X-Forwarded-For headers. Use `CloudFlare` for automatic CloudFlare IP list |
@@ -126,27 +151,21 @@ Only needed for account confirmation and password reset emails.
 | `smtp_pass` | *(empty)* | SMTP password |
 | `smtp_tls` | `true` | Enable TLS |
 
-## Ports
-
-| Port | Description |
-|------|-------------|
-| `4430/tcp` | MeshCentral web interface |
-| `4433/tcp` | Intel AMT / MPS port |
-
 ## Data storage
 
-All data is stored under `/data/meshcentral-data` which is included in HA's standard backup automatically.
+All data is stored under `/data/meshcentral-data` and `/data/meshcentral-backups`, both included in HA's standard backup automatically.
 
 | Folder | Contents |
 |--------|----------|
-| `meshcentral-data/` | Database and config |
-| `meshcentral-data/meshcentral-files/` | Device files |
-| `meshcentral-data/meshcentral-backups/` | Automatic backups |
-| `meshcentral-data/meshcentral-recordings/` | Session recordings |
-
-> **Note:** The `meshcentral-web` folder cannot be redirected (MeshCentral limitation) and will be created alongside the add-on data folder.
+| `/data/meshcentral-data/` | Database and config |
+| `/data/meshcentral-data/meshcentral-files/` | Device files |
+| `/data/meshcentral-backups/` | Automatic backups |
+| `/data/meshcentral-data/meshcentral-recordings/` | Session recordings |
 
 ## Troubleshooting
+
+**Browser shows "ERR_EMPTY_RESPONSE" or similar:**
+Use `http://homeassistant.local:4431` (HTTP port) which redirects to HTTPS, or go directly to `https://homeassistant.local:4430` and accept the certificate warning.
 
 **Agents can't connect from outside my network:**
 Set `server_mode` to `wan` or `hybrid` and set `cert_url` to your external URL.
@@ -156,9 +175,6 @@ Set `new_accounts` to `true` in the Configuration tab and restart. Create your a
 
 **Settings not taking effect:**
 The add-on regenerates its config on every start. Restart the add-on after any configuration change.
-
-**"Connection refused" on port 4430:**
-Check the add-on log. If MeshCentral fails to start, it's usually a config issue — the log will show what went wrong.
 
 ## Related
 
