@@ -35,19 +35,35 @@ jobs:
       - name: Get version
         id: version
         run: |
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            echo "version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          else
-            echo "version=dev" >> $GITHUB_OUTPUT
-          fi
+          VERSION=$(jq -r '.version' meshcentral/config.yaml)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Set image tags
+        id: tags
+        run: |
+          IMAGE="ghcr.io/${{ github.repository_owner }}/meshcentral-addon-${{ matrix.arch }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          # HA supervisor henter image:version — vi pusher både version og latest
+          echo "tags=${IMAGE}:${VERSION},${IMAGE}:latest" >> $GITHUB_OUTPUT
+
+      - name: Set platform
+        id: platform
+        run: |
+          case "${{ matrix.arch }}" in
+            amd64)    echo "platform=linux/amd64" >> $GITHUB_OUTPUT ;;
+            aarch64)  echo "platform=linux/arm64" >> $GITHUB_OUTPUT ;;
+            armhf)    echo "platform=linux/arm/v6" >> $GITHUB_OUTPUT ;;
+            armv7)    echo "platform=linux/arm/v7" >> $GITHUB_OUTPUT ;;
+            i386)     echo "platform=linux/386"    >> $GITHUB_OUTPUT ;;
+          esac
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: ./meshcentral
           file: ./meshcentral/Dockerfile
-          platforms: linux/${{ matrix.arch == 'amd64' && 'amd64' || matrix.arch == 'aarch64' && 'arm64' || matrix.arch == 'armhf' && 'arm/v6' || matrix.arch == 'armv7' && 'arm/v7' || '386' }}
+          platforms: ${{ steps.platform.outputs.platform }}
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/meshcentral-addon-${{ matrix.arch }}:${{ steps.version.outputs.version }}
+          tags: ${{ steps.tags.outputs.tags }}
           build-args: |
             BUILD_FROM=ghcr.io/home-assistant/${{ matrix.arch }}-base:latest
