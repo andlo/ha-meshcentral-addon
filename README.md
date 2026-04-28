@@ -2,9 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/release/andlo/ha-meshcentral-addon.svg)](https://github.com/andlo/ha-meshcentral-addon/releases)
 [![License](https://img.shields.io/github/license/andlo/ha-meshcentral-addon.svg)](LICENSE)
-[![Project Maintenance](https://img.shields.io/badge/maintainer-%40andlo-blue.svg)](https://github.com/andlo)
 [![GitHub Actions](https://github.com/andlo/ha-meshcentral-addon/actions/workflows/build.yaml/badge.svg)](https://github.com/andlo/ha-meshcentral-addon/actions/workflows/build.yaml)
-[![Buy me a coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/andlo)
 
 Run [MeshCentral](https://meshcentral.com) as a Home Assistant add-on — the free, open-source remote device management platform. Monitor and control all your Windows, Linux and macOS computers directly from Home Assistant.
 
