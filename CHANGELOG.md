@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2] - 2026-04-28
+
+### Fixed
+- Dockerfile: use s6-overlay service structure instead of `CMD` — fixes "can only run as pid 1" startup error
+- `run.sh` is now placed at `/etc/services.d/meshcentral/run` as required by HA base images
+
+---
+
 ## [0.2.1] - 2026-04-28
 
 ### Added
@@ -21,7 +29,6 @@
 
 ### Documentation
 - README rewritten with quick start guide and full configuration reference tables
-- Configuration, External access, Security, Features and SMTP sections documented
 
 ---
 
