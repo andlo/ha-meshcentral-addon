@@ -34,7 +34,9 @@ This is all you need to get up and running on your local network:
 
 That's it. No JSON editing required.
 
-![MeshCentral add-on info page](screenshots/addon-info.png)
+![MeshCentral add-on installed — info page with icon and controls](screenshots/addon-info.png)
+
+![MeshCentral add-on configuration — all settings available in the HA UI](screenshots/addon-configuration.png)
 
 ## External access
 
