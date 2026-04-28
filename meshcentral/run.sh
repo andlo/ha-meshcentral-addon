@@ -45,8 +45,6 @@ fi
 
 # Ports — always explicit so there's no ambiguity
 SETTINGS=$(echo "$SETTINGS" | jq '. + {port: 443, redirPort: 80, mpsPort: 4433}')
-
-# TLS offload (false by default — only true if user has a reverse proxy)
 SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$TLS_OFFLOAD" '. + {tlsOffload: $v}')
 
 # Trusted proxy (optional)
@@ -152,6 +150,18 @@ if [ "$NEW_ACCOUNTS" = "true" ]; then
 fi
 
 # ── Start MeshCentral ─────────────────────────────────────────────────────────
+
+HA_IP=$(bashio::info.ip_address 2>/dev/null || echo "homeassistant.local")
+HTTPS_PORT=$(bashio::addon.port "443/tcp" 2>/dev/null || echo "4430")
+HTTP_PORT=$(bashio::addon.port "80/tcp" 2>/dev/null || echo "4431")
+
+bashio::log.info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+bashio::log.info " MeshCentral is starting..."
+bashio::log.info " Open in browser (accept certificate warning):"
+bashio::log.info "   https://${HA_IP}:${HTTPS_PORT}"
+bashio::log.info " Or via HTTP redirect:"
+bashio::log.info "   http://${HA_IP}:${HTTP_PORT}"
+bashio::log.info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 bashio::log.info "Starting MeshCentral node process..."
 exec node /opt/meshcentral/node_modules/meshcentral \

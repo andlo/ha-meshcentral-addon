@@ -1,6 +1,6 @@
 {
   "name": "MeshCentral",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "slug": "meshcentral",
   "description": "Self-hosted remote device management — monitor and control your PCs from Home Assistant",
   "url": "https://github.com/andlo/ha-meshcentral-addon",
@@ -10,10 +10,12 @@
   "init": false,
   "ports": {
     "443/tcp": 4430,
+    "80/tcp": 4431,
     "4433/tcp": 4433
   },
   "ports_description": {
     "443/tcp": "MeshCentral web interface (HTTPS)",
+    "80/tcp": "MeshCentral HTTP redirect → HTTPS",
     "4433/tcp": "Intel AMT / MPS port"
   },
   "options": {
