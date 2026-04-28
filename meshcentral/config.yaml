@@ -1,6 +1,6 @@
 {
   "name": "MeshCentral",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "slug": "meshcentral",
   "description": "Self-hosted remote device management — monitor and control your PCs from Home Assistant",
   "url": "https://github.com/andlo/ha-meshcentral-addon",
@@ -8,22 +8,70 @@
   "startup": "application",
   "boot": "auto",
   "ports": {
-    "443/tcp": 4430
+    "443/tcp": 4430,
+    "4433/tcp": 4433
   },
   "ports_description": {
-    "443/tcp": "MeshCentral web interface (HTTPS)"
+    "443/tcp": "MeshCentral web interface (HTTPS)",
+    "4433/tcp": "Intel AMT / MPS port"
   },
   "options": {
     "data_path": "/data/meshcentral-data",
     "hostname": "",
     "cert_url": "",
-    "allow_device_sharing": false
+    "allow_device_sharing": false,
+    "server_mode": "lan",
+    "new_accounts": false,
+    "domain_title": "MeshCentral",
+    "domain_title2": "Home Assistant",
+    "session_key": "",
+    "session_time": 60,
+    "tls_offload": true,
+    "trusted_proxy": "",
+    "user_allowed_ip": "",
+    "user_blocked_ip": "",
+    "agent_allowed_ip": "",
+    "agent_blocked_ip": "",
+    "web_rtc": false,
+    "compression": false,
+    "self_update": false,
+    "maintenance_mode": false,
+    "smtp_enabled": false,
+    "smtp_host": "",
+    "smtp_port": 587,
+    "smtp_from": "",
+    "smtp_user": "",
+    "smtp_pass": "",
+    "smtp_tls": true
   },
   "schema": {
     "data_path": "str",
     "hostname": "str",
     "cert_url": "str",
-    "allow_device_sharing": "bool"
+    "allow_device_sharing": "bool",
+    "server_mode": "list(lan|wan|hybrid)",
+    "new_accounts": "bool",
+    "domain_title": "str",
+    "domain_title2": "str",
+    "session_key": "password?",
+    "session_time": "int",
+    "tls_offload": "bool",
+    "trusted_proxy": "str?",
+    "user_allowed_ip": "str?",
+    "user_blocked_ip": "str?",
+    "agent_allowed_ip": "str?",
+    "agent_blocked_ip": "str?",
+    "web_rtc": "bool",
+    "compression": "bool",
+    "self_update": "bool",
+    "maintenance_mode": "bool",
+    "smtp_enabled": "bool",
+    "smtp_host": "str?",
+    "smtp_port": "int?",
+    "smtp_from": "str?",
+    "smtp_user": "str?",
+    "smtp_pass": "password?",
+    "smtp_tls": "bool?"
   },
   "map": [
     "data:rw"
