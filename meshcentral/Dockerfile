@@ -4,8 +4,10 @@ FROM $BUILD_FROM
 # Install Node.js and jq
 RUN apk add --no-cache nodejs npm jq
 
-# Install MeshCentral to a fixed known path
-RUN npm install -g meshcentral --prefix /opt/meshcentral
+# Install MeshCentral locally — avoids global install path issues
+RUN mkdir -p /opt/meshcentral && \
+    cd /opt/meshcentral && \
+    npm install meshcentral
 
 # Copy startup script
 COPY run.sh /run.sh

@@ -1,6 +1,6 @@
 {
   "name": "MeshCentral",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "slug": "meshcentral",
   "description": "Self-hosted remote device management — monitor and control your PCs from Home Assistant",
   "url": "https://github.com/andlo/ha-meshcentral-addon",

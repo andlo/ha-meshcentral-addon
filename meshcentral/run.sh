@@ -154,6 +154,6 @@ fi
 # ── Start MeshCentral ─────────────────────────────────────────────────────────
 
 bashio::log.info "Starting MeshCentral node process..."
-exec node /opt/meshcentral/lib/node_modules/meshcentral \
+exec node /opt/meshcentral/node_modules/meshcentral \
     --datapath "${DATA_PATH}" \
     --filespath "${FILES_PATH}"
