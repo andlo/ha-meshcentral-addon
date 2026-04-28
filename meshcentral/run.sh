@@ -15,7 +15,7 @@ SMTP_ENABLED=$(bashio::config 'smtp_enabled')
 # Data path — fixed location inside HA addon data
 DATA_PATH="/data/meshcentral-data"
 FILES_PATH="${DATA_PATH}/meshcentral-files"
-BACKUP_PATH="${DATA_PATH}/meshcentral-backups"
+BACKUP_PATH="/data/meshcentral-backups"
 RECORDINGS_PATH="${DATA_PATH}/meshcentral-recordings"
 CONFIG_FILE="${DATA_PATH}/config.json"
 
@@ -87,7 +87,7 @@ if bashio::config.has_value 'agent_blocked_ip'; then
     SETTINGS=$(echo "$SETTINGS" | jq --arg v "$(bashio::config 'agent_blocked_ip')" '. + {agentBlockedIP: $v}')
 fi
 
-# Autobackup — always enabled
+# Autobackup — placeres uden for DATA_PATH
 SETTINGS=$(echo "$SETTINGS" | jq --arg bp "$BACKUP_PATH" '. + {autoBackup: {backupPath: $bp}}')
 
 # ── Build domain ──────────────────────────────────────────────────────────────
