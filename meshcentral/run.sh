@@ -43,8 +43,9 @@ elif [ "$SERVER_MODE" = "lan" ]; then
 fi
 # hybrid: neither flag set — MeshCentral default behaviour
 
-# Ports — always explicit so there's no ambiguity
-SETTINGS=$(echo "$SETTINGS" | jq '. + {port: 443, redirPort: 80, mpsPort: 4433}')
+# Ports — use external ports so MeshCentral knows its public address
+# HA maps container 443→4430 and 80→4431 externally
+SETTINGS=$(echo "$SETTINGS" | jq '. + {port: 4430, redirPort: 4431, mpsPort: 4433}')
 SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$TLS_OFFLOAD" '. + {tlsOffload: $v}')
 
 # Trusted proxy (optional)
