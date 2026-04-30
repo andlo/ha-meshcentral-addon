@@ -25,11 +25,25 @@ if bashio::config.has_value 'hostname'; then
     HOSTNAME=$(bashio::config 'hostname')
 fi
 
+# Get HA's local IP for cert — this is what users browse to
+HA_IP=$(bashio::info.ip_address 2>/dev/null || echo "")
+
 bashio::log.info "Starting MeshCentral..."
 bashio::log.info "Server mode: ${SERVER_MODE}"
 bashio::log.info "Hostname: ${HOSTNAME}"
+if [ -n "$HA_IP" ]; then
+    bashio::log.info "IP address: ${HA_IP}"
+fi
 
 mkdir -p "${DATA_PATH}" "${FILES_PATH}" "${BACKUP_PATH}" "${RECORDINGS_PATH}"
+
+# Remove old certs on every start so MeshCentral regenerates them with current config
+# This ensures the cert CN always matches the current IP/hostname
+MESHDATA="${DATA_PATH}/meshcentral-data"
+if [ -d "$MESHDATA" ]; then
+    rm -f "$MESHDATA"/*.crt "$MESHDATA"/*.key 2>/dev/null || true
+    bashio::log.info "Old certificates removed — will be regenerated with current settings."
+fi
 
 # ── Build settings ────────────────────────────────────────────────────────────
 
@@ -43,9 +57,16 @@ elif [ "$SERVER_MODE" = "lan" ]; then
 fi
 # hybrid: neither flag set — MeshCentral default behaviour
 
-# Ports — use external ports so MeshCentral knows its public address
-# HA maps container 443→4430 and 80→4431 externally
+# Ports — MeshCentral listens directly on external ports to avoid origin mismatch
 SETTINGS=$(echo "$SETTINGS" | jq '. + {port: 4430, redirPort: 4431, mpsPort: 4433}')
+
+# Cert — set to HA IP so MeshCentral's origin check matches what the browser sends
+if bashio::config.has_value 'cert_url'; then
+    CERT_HOST=$(bashio::config 'cert_url' | sed 's|https://||' | sed 's|http://||' | sed 's|/.*||')
+    SETTINGS=$(echo "$SETTINGS" | jq --arg v "$CERT_HOST" '. + {cert: $v}')
+elif [ -n "$HA_IP" ]; then
+    SETTINGS=$(echo "$SETTINGS" | jq --arg v "$HA_IP" '. + {cert: $v}')
+fi
 SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$TLS_OFFLOAD" '. + {tlsOffload: $v}')
 
 # Trusted proxy (optional)
