@@ -25,15 +25,9 @@ if bashio::config.has_value 'hostname'; then
     HOSTNAME=$(bashio::config 'hostname')
 fi
 
-# Get HA's local IP for cert — this is what users browse to
-HA_IP=$(bashio::info.ip_address 2>/dev/null || echo "")
-
 bashio::log.info "Starting MeshCentral..."
 bashio::log.info "Server mode: ${SERVER_MODE}"
 bashio::log.info "Hostname: ${HOSTNAME}"
-if [ -n "$HA_IP" ]; then
-    bashio::log.info "IP address: ${HA_IP}"
-fi
 
 mkdir -p "${DATA_PATH}" "${FILES_PATH}" "${BACKUP_PATH}" "${RECORDINGS_PATH}"
 
@@ -60,12 +54,14 @@ fi
 # Ports — MeshCentral listens directly on external ports to avoid origin mismatch
 SETTINGS=$(echo "$SETTINGS" | jq '. + {port: 4430, redirPort: 4431, mpsPort: 4433}')
 
-# Cert — set to HA IP so MeshCentral's origin check matches what the browser sends
+# Cert — determines what hostname MeshCentral uses for its certificate
+# and origin validation. Use cert_url if set (external), otherwise
+# homeassistant.local which works on any local network without knowing IP.
 if bashio::config.has_value 'cert_url'; then
     CERT_HOST=$(bashio::config 'cert_url' | sed 's|https://||' | sed 's|http://||' | sed 's|/.*||')
     SETTINGS=$(echo "$SETTINGS" | jq --arg v "$CERT_HOST" '. + {cert: $v}')
-elif [ -n "$HA_IP" ]; then
-    SETTINGS=$(echo "$SETTINGS" | jq --arg v "$HA_IP" '. + {cert: $v}')
+else
+    SETTINGS=$(echo "$SETTINGS" | jq --arg v "homeassistant.local" '. + {cert: $v}')
 fi
 SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$TLS_OFFLOAD" '. + {tlsOffload: $v}')
 
@@ -173,16 +169,12 @@ fi
 
 # ── Start MeshCentral ─────────────────────────────────────────────────────────
 
-HA_IP=$(bashio::info.ip_address 2>/dev/null || echo "homeassistant.local")
-HTTPS_PORT=$(bashio::addon.port "443/tcp" 2>/dev/null || echo "4430")
-HTTP_PORT=$(bashio::addon.port "80/tcp" 2>/dev/null || echo "4431")
-
 bashio::log.info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 bashio::log.info " MeshCentral is starting..."
 bashio::log.info " Open in browser (accept certificate warning):"
-bashio::log.info "   https://${HA_IP}:${HTTPS_PORT}"
+bashio::log.info "   https://homeassistant.local:4430"
 bashio::log.info " Or via HTTP redirect:"
-bashio::log.info "   http://${HA_IP}:${HTTP_PORT}"
+bashio::log.info "   http://homeassistant.local:4431"
 bashio::log.info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 bashio::log.info "Starting MeshCentral node process..."
