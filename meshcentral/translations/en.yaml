@@ -1,0 +1,221 @@
+configuration:
+  server_mode:
+    name: Server mode
+    description: >-
+      "lan" for local network only (default). "wan" for internet-accessible servers — requires cert_url.
+      "hybrid" for both LAN and WAN access.
+
+  cert_url:
+    name: Certificate URL / hostname
+    description: >-
+      Public hostname or IP used by agents and browsers to reach the server (e.g. meshcentral.example.com).
+      Required for wan and hybrid modes. Leave empty in lan mode.
+
+  new_accounts:
+    name: Allow new account registration
+    description: >-
+      Allow new users to register on the login page. Keep enabled until you have created your admin account,
+      then disable to prevent others from registering.
+
+  new_accounts_pass:
+    name: Registration password
+    description: >-
+      Optional shared password required to create a new account.
+      Acts as an invite code. Only relevant when new account registration is enabled.
+
+  domain_title:
+    name: Site title
+    description: >-
+      Name shown in the browser tab and on the login page header. Default is "MeshCentral".
+
+  domain_title2:
+    name: Site subtitle
+    description: >-
+      Optional subtitle shown below the main title on the login page.
+
+  site_style:
+    name: Login page style
+    description: >-
+      Visual style of the login page. 1 = classic style, 2 = modern style (default).
+
+  welcome_text:
+    name: Welcome message
+    description: >-
+      Optional text shown on the login page below the title.
+      Useful for instructions or a welcome message for new users.
+
+  session_time:
+    name: Session timeout (minutes)
+    description: >-
+      How long a user session stays active without any activity before requiring re-login.
+      Set to 0 for sessions that never expire automatically. Default is 60 minutes.
+
+  tls_offload:
+    name: TLS offload (reverse proxy)
+    description: >-
+      Enable if MeshCentral sits behind a reverse proxy (e.g. NGINX Proxy Manager, Traefik)
+      that handles HTTPS. Leave disabled for direct access — MeshCentral manages its own TLS certificate.
+
+  trusted_proxy:
+    name: Trusted proxy IP
+    description: >-
+      IP address or CIDR range of your reverse proxy (e.g. 192.168.1.1 or 172.16.0.0/12).
+      Only used when TLS offload is enabled.
+
+  web_rtc:
+    name: Enable WebRTC
+    description: >-
+      Enable WebRTC for direct peer-to-peer remote desktop connections between browser and agent.
+      Can improve performance but requires open UDP ports. Leave disabled for relay-based connections
+      that work everywhere.
+
+  compression:
+    name: Enable compression
+    description: >-
+      Enable GZIP compression for web traffic. Reduces bandwidth at the cost of a small amount of CPU.
+      Recommended to keep enabled.
+
+  allow_high_quality_desktop:
+    name: Allow high quality remote desktop
+    description: >-
+      Allow agents to stream remote desktop at full quality.
+      Disable to cap image quality and reduce bandwidth on slow connections.
+
+  self_update:
+    name: Allow MeshCentral self-update
+    description: >-
+      Allow MeshCentral to update itself automatically. Not recommended — the add-on controls
+      the MeshCentral version. Keep disabled.
+
+  maintenance_mode:
+    name: Maintenance mode
+    description: >-
+      When enabled, blocks all user logins and shows a maintenance message. Agents stay connected.
+      Useful when making configuration changes without disconnecting devices.
+
+  no_2fa:
+    name: Disable two-factor authentication
+    description: >-
+      Disable the two-factor authentication requirement for all users.
+      Not recommended for internet-facing servers.
+
+  max_invalid_login_count:
+    name: Max failed login attempts
+    description: >-
+      Number of failed login attempts allowed before an IP address is temporarily blocked.
+      Default is 10.
+
+  max_invalid_login_time:
+    name: Failed login time window (minutes)
+    description: >-
+      Time window in minutes over which failed login attempts are counted.
+      If the limit is exceeded within this window, the IP is blocked. Default is 10 minutes.
+
+  auto_remove_inactive_devices:
+    name: Auto-remove inactive devices (days)
+    description: >-
+      Automatically remove devices that have been offline for more than this many days.
+      Set to 0 to never auto-remove devices (default).
+
+  guest_device_sharing:
+    name: Allow guest device sharing
+    description: >-
+      Allow users to create guest sharing links for remote desktop sessions — a time-limited URL
+      giving one-click access to a device without a MeshCentral account.
+
+  allow_framing:
+    name: Allow iframe embedding
+    description: >-
+      Allow MeshCentral to be embedded in an iframe on another web page.
+      Disabled by default to prevent clickjacking. Only enable if you need to embed MeshCentral
+      in another dashboard.
+
+  user_allowed_ip:
+    name: Allowed user IPs
+    description: >-
+      Comma-separated list of IP addresses or CIDR ranges allowed to access the web interface.
+      All other IPs are blocked. Leave empty to allow all (e.g. 192.168.1.0/24,10.0.0.5).
+
+  user_blocked_ip:
+    name: Blocked user IPs
+    description: >-
+      Comma-separated list of IP addresses or CIDR ranges blocked from the web interface.
+      Leave empty to block none.
+
+  agent_allowed_ip:
+    name: Allowed agent IPs
+    description: >-
+      Comma-separated list of IP addresses or CIDR ranges that agents are allowed to connect from.
+      Leave empty to allow agents from any IP.
+
+  agent_blocked_ip:
+    name: Blocked agent IPs
+    description: >-
+      Comma-separated list of IP addresses or CIDR ranges blocked from connecting as agents.
+      Leave empty to block none.
+
+  agent_port:
+    name: Dedicated agent port
+    description: >-
+      Optional separate HTTPS port exclusively for agent connections.
+      Set to 0 (default) to use the main port (4430) for everything.
+
+  mps_port:
+    name: Intel AMT / MPS port
+    description: >-
+      Port for Intel AMT / MPS (Management Presence Server) connections.
+      Only relevant if you manage Intel vPro/AMT devices. Default is 4433.
+
+  backup_interval_hours:
+    name: Backup interval (hours)
+    description: >-
+      How often MeshCentral creates an automatic backup of its database and configuration.
+      Set to 0 to disable automatic backups. Default is every 24 hours.
+
+  backup_keep_days:
+    name: Keep backups (days)
+    description: >-
+      How many days of automatic backups to keep. Older backups are deleted automatically.
+      Default is 10 days.
+
+  backup_zip_password:
+    name: Backup encryption password
+    description: >-
+      Optional password to encrypt backup ZIP files. Leave empty for unencrypted backups.
+
+  smtp_enabled:
+    name: Enable email (SMTP)
+    description: >-
+      Enable SMTP email sending for notifications, account verification and 2FA codes.
+      Fill in the fields below when enabled.
+
+  smtp_host:
+    name: SMTP server
+    description: >-
+      Hostname of your SMTP server (e.g. smtp.gmail.com or mail.example.com).
+
+  smtp_port:
+    name: SMTP port
+    description: >-
+      SMTP port number. Common values: 587 (STARTTLS, default), 465 (SSL), 25 (plain, not recommended).
+
+  smtp_from:
+    name: From address
+    description: >-
+      The "from" email address used for outgoing messages (e.g. meshcentral@example.com).
+
+  smtp_user:
+    name: SMTP username
+    description: >-
+      Username for SMTP authentication.
+
+  smtp_pass:
+    name: SMTP password
+    description: >-
+      Password for SMTP authentication. Stored securely.
+
+  smtp_tls:
+    name: Enable SMTP TLS
+    description: >-
+      Enable TLS/STARTTLS for the SMTP connection. Should be enabled for port 587.
+      Disable only if your SMTP server does not support TLS.
