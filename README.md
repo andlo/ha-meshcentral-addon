@@ -95,75 +95,96 @@ Settings for the integration:
 
 ## Configuration
 
-All settings are in the add-on **Configuration** tab. No JSON files to edit. The add-on generates MeshCentral's config on every start from these options.
+All settings are in the add-on **Configuration** tab. No JSON files to edit. The add-on generates MeshCentral's `config.json` on every start from these options.
 
-### General
+### General / network
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `server_mode` | `lan` | `lan` = local network only, `wan` = internet (requires `cert_url`), `hybrid` = both |
-| `cert_url` | *(empty)* | Your full external URL. Required for agents outside your local network |
-| `hostname` | *(HA hostname)* | Public hostname override. Leave empty to use the HA system hostname |
+| `cert_url` | *(empty)* | Your full external URL. Required for agents connecting from outside your local network |
+| `agent_port` | `0` | Optional dedicated HTTPS port for agent connections only. `0` = disabled, agents use the main port |
+| `mps_port` | `4433` | Port for Intel AMT Client Initiated Remote Access (CIRA) connections |
+| `web_rtc` | `false` | Enable WebRTC for direct peer-to-peer connections between agent and browser — reduces server relay load |
+| `compression` | `true` | Enable GZIP compression for web requests |
 
 ### Domain / appearance
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `domain_title` | `MeshCentral` | Title shown on the login page |
-| `domain_title2` | *(empty)* | Optional subtitle |
-| `new_accounts` | `true` | Allow users to self-register. **Disable after creating your admin account** |
+| `domain_title` | `MeshCentral` | Title shown on all pages |
+| `domain_title2` | *(empty)* | Optional subtitle shown in the top right corner |
+| `site_style` | `2` | Login page style — `1` = classic, `2` = modern (default) |
+| `welcome_text` | *(empty)* | Custom text shown on the login screen |
+| `new_accounts` | `true` | Allow users to self-register from the login page. **Disable after creating your admin account** |
+| `new_accounts_pass` | *(empty)* | If set, users must enter this password to create a new account |
+| `guest_device_sharing` | `true` | Allow users to create guest sharing links for desktop and terminal sessions |
+| `auto_remove_inactive_devices` | `0` | Automatically remove devices that have been offline for this many days. `0` = disabled |
 
 ### Security
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `session_key` | *(auto)* | Secret key for session cookies. Leave empty to auto-generate |
-| `session_time` | `60` | Session duration in minutes |
-| `tls_offload` | `false` | Set to `true` only if a reverse proxy handles HTTPS in front of MeshCentral |
-| `trusted_proxy` | *(empty)* | IPs allowed to send X-Forwarded-For headers. Use `CloudFlare` for automatic CloudFlare IP list |
-| `user_allowed_ip` | *(empty)* | Comma-separated IPs/ranges allowed to log in — e.g. `192.168.1.0/24`. Empty = all allowed |
-| `user_blocked_ip` | *(empty)* | Block these IPs from logging in |
-| `agent_allowed_ip` | *(empty)* | Only accept agents from these IPs |
-| `agent_blocked_ip` | *(empty)* | Reject agents from these IPs |
+| `session_key` | *(auto)* | Secret key for session cookies. Leave empty to auto-generate a new key on every start |
+| `session_time` | `60` | Session duration in minutes before the user must re-authenticate |
+| `no_2fa` | `false` | Disable two-factor authentication (2FA) for all users. Not recommended for internet-facing servers |
+| `max_invalid_login_count` | `10` | Maximum number of failed login attempts from an IP before it is temporarily blocked |
+| `max_invalid_login_time` | `10` | Time window in minutes for counting failed login attempts |
+| `tls_offload` | `false` | Set to `true` only if a reverse proxy handles TLS in front of MeshCentral |
+| `trusted_proxy` | *(empty)* | IP addresses allowed to send `X-Forwarded-For` headers. Use `CloudFlare` to auto-import Cloudflare IP ranges |
+| `allow_framing` | `false` | Allow the MeshCentral web UI to be embedded in an iframe on another website |
+| `user_allowed_ip` | *(empty)* | Only allow user logins from these IPs/ranges, e.g. `192.168.1.0/24`. Empty = all allowed |
+| `user_blocked_ip` | *(empty)* | Block user logins from these IPs/ranges |
+| `agent_allowed_ip` | *(empty)* | Only accept agent connections from these IPs/ranges |
+| `agent_blocked_ip` | *(empty)* | Reject agent connections from these IPs/ranges |
 
 ### Features
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `web_rtc` | `false` | Enable WebRTC for direct peer-to-peer connections (reduces server load for desktop sessions) |
-| `compression` | `false` | Enable GZIP compression |
-| `self_update` | `false` | Let MeshCentral update itself automatically |
-| `maintenance_mode` | `false` | Only administrators can log in |
+| `allow_high_quality_desktop` | `true` | Allow users to set remote desktop quality above 60%. Set to `false` to cap quality and reduce bandwidth |
+| `self_update` | `false` | Let MeshCentral automatically update itself after midnight |
+| `maintenance_mode` | `false` | When enabled, only administrators can log in |
 
-### Email (SMTP)
+### Backup
 
-Only needed for account confirmation and password reset emails.
+Backups are stored at `/data/meshcentral-backups` and are included in Home Assistant's standard backup.
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `smtp_enabled` | `false` | Enable SMTP |
+| `backup_interval_hours` | `24` | How often automatic backups run, in hours |
+| `backup_keep_days` | `10` | How many days of backups to keep before older ones are deleted |
+| `backup_zip_password` | *(empty)* | Optional password to encrypt backup ZIP archives |
+
+### Email (SMTP)
+
+Only needed if you want account confirmation, password reset, and notification emails.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `smtp_enabled` | `false` | Enable SMTP email sending |
 | `smtp_host` | *(empty)* | SMTP server hostname — e.g. `smtp.gmail.com` |
-| `smtp_port` | `587` | Use `587` for STARTTLS or `465` for SSL |
-| `smtp_from` | *(empty)* | Sender address |
-| `smtp_user` | *(empty)* | SMTP username |
-| `smtp_pass` | *(empty)* | SMTP password |
-| `smtp_tls` | `true` | Enable TLS |
+| `smtp_port` | `587` | SMTP port — `587` for STARTTLS, `465` for SSL |
+| `smtp_from` | *(empty)* | Sender address shown in outgoing emails |
+| `smtp_user` | *(empty)* | SMTP login username |
+| `smtp_pass` | *(empty)* | SMTP login password |
+| `smtp_tls` | `true` | Enable TLS for the SMTP connection |
 
 ## Data storage
 
-All data is stored under `/data/meshcentral-data` and `/data/meshcentral-backups`, both included in HA's standard backup automatically.
+All data is stored under `/data` and included in HA's standard backup automatically.
 
 | Folder | Contents |
 |--------|----------|
-| `/data/meshcentral-data/` | Database and config |
-| `/data/meshcentral-data/meshcentral-files/` | Device files |
-| `/data/meshcentral-backups/` | Automatic backups |
+| `/data/meshcentral-data/` | Database and certificates |
+| `/data/meshcentral-data/meshcentral-files/` | Files shared via MeshCentral |
+| `/data/meshcentral-backups/` | Automatic server backups |
 | `/data/meshcentral-data/meshcentral-recordings/` | Session recordings |
 
 ## Troubleshooting
 
 **Browser shows "ERR_EMPTY_RESPONSE" or similar:**
-Use `http://homeassistant.local:4431` (HTTP port) which redirects to HTTPS, or go directly to `https://homeassistant.local:4430` and accept the certificate warning.
+Use `http://homeassistant.local:4431` (HTTP port), which redirects to HTTPS automatically. Or go directly to `https://homeassistant.local:4430` and accept the certificate warning.
 
 **Agents can't connect from outside my network:**
 Set `server_mode` to `wan` or `hybrid` and set `cert_url` to your external URL.
@@ -173,6 +194,9 @@ Set `new_accounts` to `true` in the Configuration tab and restart. Create your a
 
 **Settings not taking effect:**
 The add-on regenerates its config on every start. Restart the add-on after any configuration change.
+
+**Certificate warning in browser:**
+This is expected — MeshCentral generates a self-signed certificate. Click **Advanced → Proceed** to continue. The connection is still encrypted.
 
 ## Related
 

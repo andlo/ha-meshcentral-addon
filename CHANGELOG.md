@@ -1,5 +1,34 @@
 # Changelog
 
+## \[0.2.11\] - 2026-05-01
+
+### Added
+
+- **15 new configuration options** — all configurable directly from the HA add-on Configuration tab:
+  - `site_style` — login page style (1 = classic, 2 = modern)
+  - `welcome_text` — custom text shown on the login screen
+  - `new_accounts_pass` — optional password required to create a new account
+  - `guest_device_sharing` — enable/disable guest sharing links for desktop sessions
+  - `auto_remove_inactive_devices` — automatically remove devices offline for N days (0 = disabled)
+  - `no_2fa` — disable two-factor authentication requirement
+  - `max_invalid_login_count` — max failed login attempts before IP is blocked (default: 10)
+  - `max_invalid_login_time` — time window in minutes for counting failed attempts (default: 10)
+  - `allow_high_quality_desktop` — cap remote desktop image quality to reduce bandwidth
+  - `allow_framing` — allow embedding MeshCentral in an iframe
+  - `agent_port` — optional dedicated HTTPS port for agent connections only
+  - `backup_interval_hours` — how often automatic backups run (default: 24h)
+  - `backup_keep_days` — how many days of backups to retain (default: 10)
+  - `backup_zip_password` — optional encryption password for backup ZIP files
+- `compression` default changed to `true` — GZIP enabled out of the box
+
+### Documentation
+
+- README configuration section fully rewritten with all options, grouped into: General/network, Domain/appearance, Security, Features, Backup, Email (SMTP)
+- Added descriptions and defaults for every option
+
+---
+
+
 ## \[0.2.7\] - 2026-04-28
 
 ### Added
