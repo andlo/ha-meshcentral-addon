@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bashio
 
-# Read required options
+# ── Read options ──────────────────────────────────────────────────────────────
 SERVER_MODE=$(bashio::config 'server_mode')
 NEW_ACCOUNTS=$(bashio::config 'new_accounts')
 DOMAIN_TITLE=$(bashio::config 'domain_title')
@@ -8,18 +8,30 @@ SESSION_TIME=$(bashio::config 'session_time')
 TLS_OFFLOAD=$(bashio::config 'tls_offload')
 WEB_RTC=$(bashio::config 'web_rtc')
 COMPRESSION=$(bashio::config 'compression')
+ALLOW_HQ_DESKTOP=$(bashio::config 'allow_high_quality_desktop')
 SELF_UPDATE=$(bashio::config 'self_update')
 MAINTENANCE=$(bashio::config 'maintenance_mode')
+NO_2FA=$(bashio::config 'no_2fa')
+SITE_STYLE=$(bashio::config 'site_style')
+GUEST_SHARING=$(bashio::config 'guest_device_sharing')
+ALLOW_FRAMING=$(bashio::config 'allow_framing')
+LOGIN_COUNT=$(bashio::config 'max_invalid_login_count')
+LOGIN_TIME=$(bashio::config 'max_invalid_login_time')
+AUTO_REMOVE=$(bashio::config 'auto_remove_inactive_devices')
+AGENT_PORT=$(bashio::config 'agent_port')
+MPS_PORT=$(bashio::config 'mps_port')
+BACKUP_INTERVAL=$(bashio::config 'backup_interval_hours')
+BACKUP_KEEP=$(bashio::config 'backup_keep_days')
 SMTP_ENABLED=$(bashio::config 'smtp_enabled')
 
-# Data path — fixed location inside HA addon data
+# ── Paths ─────────────────────────────────────────────────────────────────────
 DATA_PATH="/data/meshcentral-data"
 FILES_PATH="${DATA_PATH}/meshcentral-files"
 BACKUP_PATH="/data/meshcentral-backups"
 RECORDINGS_PATH="${DATA_PATH}/meshcentral-recordings"
 CONFIG_FILE="${DATA_PATH}/config.json"
 
-# Use HA hostname as fallback
+# ── Hostname ──────────────────────────────────────────────────────────────────
 HOSTNAME=$(bashio::info.hostname)
 if bashio::config.has_value 'hostname'; then
     HOSTNAME=$(bashio::config 'hostname')
@@ -31,8 +43,7 @@ bashio::log.info "Hostname: ${HOSTNAME}"
 
 mkdir -p "${DATA_PATH}" "${FILES_PATH}" "${BACKUP_PATH}" "${RECORDINGS_PATH}"
 
-# Remove old certs on every start so MeshCentral regenerates them with current config
-# This ensures the cert CN always matches the current IP/hostname
+# ── Remove old certs so MeshCentral regenerates with current config ───────────
 MESHDATA="${DATA_PATH}/meshcentral-data"
 if [ -d "$MESHDATA" ]; then
     rm -f "$MESHDATA"/*.crt "$MESHDATA"/*.key 2>/dev/null || true
@@ -40,7 +51,6 @@ if [ -d "$MESHDATA" ]; then
 fi
 
 # ── Build settings ────────────────────────────────────────────────────────────
-
 SETTINGS="{}"
 
 # Network mode
@@ -49,14 +59,18 @@ if [ "$SERVER_MODE" = "wan" ]; then
 elif [ "$SERVER_MODE" = "lan" ]; then
     SETTINGS=$(echo "$SETTINGS" | jq '. + {LANonly: true}')
 fi
-# hybrid: neither flag set — MeshCentral default behaviour
 
-# Ports — MeshCentral listens directly on external ports to avoid origin mismatch
-SETTINGS=$(echo "$SETTINGS" | jq '. + {port: 4430, redirPort: 4431, mpsPort: 4433}')
+# Ports
+SETTINGS=$(echo "$SETTINGS" | jq \
+    --argjson mps "$MPS_PORT" \
+    '. + {port: 4430, redirPort: 4431, mpsPort: $mps}')
 
-# Cert — determines what hostname MeshCentral uses for its certificate
-# and origin validation. Use cert_url if set (external), otherwise
-# homeassistant.local which works on any local network without knowing IP.
+# Optional dedicated agent port
+if [ "$AGENT_PORT" -gt 0 ] 2>/dev/null; then
+    SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$AGENT_PORT" '. + {agentPort: $v}')
+fi
+
+# Cert / hostname
 if bashio::config.has_value 'cert_url'; then
     CERT_HOST=$(bashio::config 'cert_url' | sed 's|https://||' | sed 's|http://||' | sed 's|/.*||')
     SETTINGS=$(echo "$SETTINGS" | jq --arg v "$CERT_HOST" '. + {cert: $v}')
@@ -67,27 +81,37 @@ SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$TLS_OFFLOAD" '. + {tlsOffload: $v
 
 # Trusted proxy (optional)
 if bashio::config.has_value 'trusted_proxy'; then
-    TRUSTED_PROXY=$(bashio::config 'trusted_proxy')
-    SETTINGS=$(echo "$SETTINGS" | jq --arg v "$TRUSTED_PROXY" '. + {trustedProxy: $v}')
+    SETTINGS=$(echo "$SETTINGS" | jq --arg v "$(bashio::config 'trusted_proxy')" '. + {trustedProxy: $v}')
 fi
 
 # Session
 SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$SESSION_TIME" '. + {sessionTime: $v}')
 if bashio::config.has_value 'session_key'; then
-    SESSION_KEY=$(bashio::config 'session_key')
-    SETTINGS=$(echo "$SETTINGS" | jq --arg v "$SESSION_KEY" '. + {sessionKey: $v}')
+    SETTINGS=$(echo "$SETTINGS" | jq --arg v "$(bashio::config 'session_key')" '. + {sessionKey: $v}')
 fi
 
 # Features
 SETTINGS=$(echo "$SETTINGS" | jq \
-    --argjson rtc "$WEB_RTC" \
+    --argjson rtc  "$WEB_RTC" \
     --argjson comp "$COMPRESSION" \
-    --argjson upd "$SELF_UPDATE" \
-    '. + {webRTC: $rtc, compression: $comp, selfUpdate: $upd}')
+    --argjson hq   "$ALLOW_HQ_DESKTOP" \
+    --argjson upd  "$SELF_UPDATE" \
+    --argjson fr   "$ALLOW_FRAMING" \
+    '. + {webRTC: $rtc, compression: $comp, allowHighQualityDesktop: $hq, selfUpdate: $upd, allowFraming: $fr}')
 
 if [ "$MAINTENANCE" = "true" ]; then
     SETTINGS=$(echo "$SETTINGS" | jq '. + {maintenanceMode: true}')
 fi
+
+if [ "$NO_2FA" = "true" ]; then
+    SETTINGS=$(echo "$SETTINGS" | jq '. + {no2FactorAuth: true}')
+fi
+
+# Invalid login rate limiting
+SETTINGS=$(echo "$SETTINGS" | jq \
+    --argjson cnt "$LOGIN_COUNT" \
+    --argjson tim "$LOGIN_TIME" \
+    '. + {maxInvalidLogin: {count: $cnt, time: $tim}}')
 
 # IP access control (all optional)
 if bashio::config.has_value 'user_allowed_ip'; then
@@ -103,21 +127,39 @@ if bashio::config.has_value 'agent_blocked_ip'; then
     SETTINGS=$(echo "$SETTINGS" | jq --arg v "$(bashio::config 'agent_blocked_ip')" '. + {agentBlockedIP: $v}')
 fi
 
-# Autobackup — placeres uden for DATA_PATH
-SETTINGS=$(echo "$SETTINGS" | jq --arg bp "$BACKUP_PATH" '. + {autoBackup: {backupPath: $bp}}')
+# Autobackup
+BACKUP_JSON=$(jq -n \
+    --arg     bp  "$BACKUP_PATH" \
+    --argjson ivl "$BACKUP_INTERVAL" \
+    --argjson kp  "$BACKUP_KEEP" \
+    '{backupPath: $bp, backupIntervalHours: $ivl, keepLastDaysBackup: $kp}')
+if bashio::config.has_value 'backup_zip_password'; then
+    BACKUP_JSON=$(echo "$BACKUP_JSON" | jq --arg v "$(bashio::config 'backup_zip_password')" '. + {zipPassword: $v}')
+fi
+SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$BACKUP_JSON" '. + {autoBackup: $v}')
 
 # ── Build domain ──────────────────────────────────────────────────────────────
-
 DOMAIN="{}"
-DOMAIN=$(echo "$DOMAIN" | jq --arg v "$DOMAIN_TITLE" '. + {title: $v}')
+DOMAIN=$(echo "$DOMAIN" | jq \
+    --arg     ttl  "$DOMAIN_TITLE" \
+    --argjson na   "$NEW_ACCOUNTS" \
+    --argjson ss   "$SITE_STYLE" \
+    --argjson gs   "$GUEST_SHARING" \
+    --argjson ar   "$AUTO_REMOVE" \
+    '. + {title: $ttl, newAccounts: $na, siteStyle: $ss, guestDeviceSharing: $gs, autoRemoveInactiveDevices: $ar}')
 
 if bashio::config.has_value 'domain_title2'; then
     DOMAIN=$(echo "$DOMAIN" | jq --arg v "$(bashio::config 'domain_title2')" '. + {title2: $v}')
 fi
 
-DOMAIN=$(echo "$DOMAIN" | jq --argjson v "$NEW_ACCOUNTS" '. + {newAccounts: $v}')
+if bashio::config.has_value 'welcome_text'; then
+    DOMAIN=$(echo "$DOMAIN" | jq --arg v "$(bashio::config 'welcome_text')" '. + {welcomeText: $v}')
+fi
 
-# certUrl — required for agents connecting from outside LAN
+if bashio::config.has_value 'new_accounts_pass'; then
+    DOMAIN=$(echo "$DOMAIN" | jq --arg v "$(bashio::config 'new_accounts_pass')" '. + {newAccountsPass: $v}')
+fi
+
 if bashio::config.has_value 'cert_url'; then
     DOMAIN=$(echo "$DOMAIN" | jq --arg v "$(bashio::config 'cert_url')" '. + {certUrl: $v}')
 fi
@@ -125,8 +167,7 @@ fi
 DOMAIN=$(echo "$DOMAIN" | jq --arg rp "$RECORDINGS_PATH" \
     '. + {sessionRecording: {filepath: $rp}}')
 
-# ── Build SMTP (only if enabled and host is set) ──────────────────────────────
-
+# ── Build SMTP ────────────────────────────────────────────────────────────────
 SMTP_JSON="null"
 if [ "$SMTP_ENABLED" = "true" ] && bashio::config.has_value 'smtp_host'; then
     SMTP_PORT=587
@@ -146,7 +187,6 @@ if [ "$SMTP_ENABLED" = "true" ] && bashio::config.has_value 'smtp_host'; then
 fi
 
 # ── Assemble and write config.json ────────────────────────────────────────────
-
 if [ "$SMTP_JSON" = "null" ]; then
     CONFIG=$(jq -n \
         --argjson settings "$SETTINGS" \
@@ -168,7 +208,6 @@ if [ "$NEW_ACCOUNTS" = "true" ]; then
 fi
 
 # ── Start MeshCentral ─────────────────────────────────────────────────────────
-
 bashio::log.info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 bashio::log.info " MeshCentral is starting..."
 bashio::log.info " Open in browser (accept certificate warning):"
@@ -177,7 +216,6 @@ bashio::log.info " Or via HTTP redirect:"
 bashio::log.info "   http://homeassistant.local:4431"
 bashio::log.info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-bashio::log.info "Starting MeshCentral node process..."
 exec node /opt/meshcentral/node_modules/meshcentral \
     --datapath "${DATA_PATH}" \
     --filespath "${FILES_PATH}"
