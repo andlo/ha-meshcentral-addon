@@ -5,11 +5,40 @@ on:
     branches: [main]
     paths:
       - "meshcentral/**"
+      - "CHANGELOG.md"
   release:
     types: [published]
 
 jobs:
+  sync-changelog:
+    name: Sync CHANGELOG to add-on folder
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy CHANGELOG.md to add-on subfolder
+        run: cp CHANGELOG.md meshcentral/CHANGELOG.md
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet meshcentral/CHANGELOG.md || (
+            git add meshcentral/CHANGELOG.md &&
+            git commit -m "chore: sync CHANGELOG.md to add-on subfolder [skip ci]"
+          )
+
+      - name: Push
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+
   build:
+    needs: sync-changelog
     name: Build ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
