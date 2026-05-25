@@ -18,6 +18,22 @@ MeshCentral lets you remotely monitor, manage and control computers (Windows, Li
 
 ---
 
+## Using with the MeshCentral HA integration
+
+If you plan to use this add-on together with the [MeshCentral HA integration](https://github.com/andlo/ha-meshcentral), make sure **Enable Login Tokens** (`allow_login_token`) is set to `true` in the add-on configuration.
+
+This is required if your MeshCentral account has **2FA enabled** — the integration authenticates using a Login Token (`~t:...` username) instead of your password, which bypasses 2FA. Without `allowLoginToken: true` in the server config, MeshCentral will reject these tokens and the integration will fail to connect.
+
+**How to set it up:**
+
+1. Enable `allow_login_token: true` in the add-on options and restart
+2. Log in to MeshCentral → **My Account** → **Login Tokens** → Create a token
+3. In the HA integration setup, enter the generated username (`~t:...`) and the token password
+
+> **Note:** Even without 2FA, Login Tokens are a good practice for automation — they can be revoked individually without changing your main password.
+
+---
+
 ## Configuration reference
 
 ### General / Network
@@ -57,12 +73,12 @@ IP address or CIDR range of your reverse proxy, e.g. `192.168.1.1` or `172.16.0.
 #### `agent_port`
 **Default:** `0` _(disabled)_
 
-If set to a non-zero port number, MeshCentral opens a dedicated HTTPS port exclusively for agent connections, separate from the main web interface port (4430). Useful if you want to expose agent traffic on a different firewall rule. Set to `0` to use the main port for everything.
+If set to a non-zero port number, MeshCentral opens a dedicated HTTPS port exclusively for agent connections, separate from the main web interface port (4430). Set to `0` to use the main port for everything.
 
 #### `mps_port`
 **Default:** `4433`
 
-Port for Intel AMT / MPS (Management Presence Server) connections. Only relevant if you manage Intel vPro/AMT devices. Exposed externally on the same port by default.
+Port for Intel AMT / MPS (Management Presence Server) connections. Only relevant if you manage Intel vPro/AMT devices.
 
 ---
 
@@ -81,17 +97,12 @@ Optional subtitle shown below the main title on the login page.
 #### `site_style`
 **Default:** `2`
 
-Login page visual style.
-
-| Value | Description |
-|-------|-------------|
-| `1` | Classic style |
-| `2` | Modern style |
+Login page visual style. `1` = classic, `2` = modern.
 
 #### `welcome_text`
 **Default:** _(empty)_
 
-Optional text shown on the login page below the title — useful for a welcome message or instructions for new users.
+Optional text shown on the login page below the title.
 
 ---
 
@@ -100,44 +111,44 @@ Optional text shown on the login page below the title — useful for a welcome m
 #### `new_accounts`
 **Default:** `true`
 
-Allow new users to register themselves on the login page. Set to `true` initially so you can create your admin account. After that, set to `false` to prevent anyone else from registering.
+Allow new users to register on the login page. Disable after creating your admin account.
 
 #### `new_accounts_pass`
 **Default:** _(empty)_
 
-If set, users must enter this password on the registration page before creating an account. Acts as a shared invite code. Only relevant when `new_accounts` is `true`.
+Optional shared invite code required during registration. Only relevant when `new_accounts` is `true`.
 
 #### `session_time`
 **Default:** `60`
 
-How long (in minutes) a user session stays active without activity before requiring re-login. Set to `0` for sessions that never expire automatically.
+How long (in minutes) a user session stays active without activity. Set to `0` for sessions that never expire.
+
+#### `allow_login_token`
+**Default:** `false`
+
+Enable support for per-user Login Tokens (`~t:...` username format). **Required when using the MeshCentral HA integration with 2FA accounts.** See the [Using with the HA integration](#using-with-the-meshcentral-ha-integration) section above.
+
+When enabled, users can generate tokens under **My Account → Login Tokens**. Tokens authenticate without requiring the account password or a 2FA code, making them ideal for integrations and automations.
 
 #### `no_2fa`
 **Default:** `false`
 
-Set to `true` to disable the two-factor authentication requirement for all users. Not recommended for internet-facing servers.
+Disable the two-factor authentication requirement for all users. Not recommended for internet-facing servers.
 
 #### `max_invalid_login_count`
 **Default:** `10`
 
-Number of failed login attempts allowed before an IP address is temporarily blocked.
+Number of failed login attempts before an IP is temporarily blocked.
 
 #### `max_invalid_login_time`
 **Default:** `10`
 
-Time window in minutes over which failed login attempts are counted. If an IP exceeds `max_invalid_login_count` within this window, it is blocked.
+Time window in minutes over which failed attempts are counted.
 
-#### `user_allowed_ip`
+#### `user_allowed_ip` / `user_blocked_ip`
 **Default:** _(empty)_
 
-Comma-separated list of IP addresses or CIDR ranges that are allowed to access the web interface. All other IPs are blocked. Leave empty to allow all.
-
-Example: `192.168.1.0/24,10.0.0.5`
-
-#### `user_blocked_ip`
-**Default:** _(empty)_
-
-Comma-separated list of IP addresses or CIDR ranges that are blocked from accessing the web interface. Leave empty to block none.
+Comma-separated IP addresses or CIDR ranges for web interface access control.
 
 ---
 
@@ -146,56 +157,51 @@ Comma-separated list of IP addresses or CIDR ranges that are blocked from access
 #### `web_rtc`
 **Default:** `false`
 
-Enable WebRTC for direct peer-to-peer remote desktop connections between browser and agent. Can improve performance but requires open UDP ports and may not work behind strict NAT. Leave `false` for relay-based connections which work everywhere.
+Enable WebRTC for direct peer-to-peer remote desktop. Requires open UDP ports.
 
 #### `compression`
 **Default:** `true`
 
-Enable GZIP compression for web traffic. Reduces bandwidth at the cost of a small amount of CPU. Recommended to leave enabled.
+Enable GZIP compression for web traffic. Recommended to keep enabled.
 
 #### `allow_high_quality_desktop`
 **Default:** `true`
 
-Allow agents to stream remote desktop at full/high quality. Set to `false` to cap quality and reduce bandwidth usage on slow connections.
+Allow full-quality remote desktop streaming. Disable to reduce bandwidth.
 
 #### `guest_device_sharing`
 **Default:** `true`
 
-Allow users to create guest sharing links for remote desktop sessions — a time-limited URL that gives a guest one-click access to a specific device without needing a MeshCentral account.
+Allow users to create one-click guest sharing links for remote desktop sessions.
 
 #### `allow_framing`
 **Default:** `false`
 
-Allow MeshCentral to be embedded in an iframe on another web page. Disabled by default for security (prevents clickjacking). Only enable if you specifically need to embed MeshCentral in another dashboard.
+Allow MeshCentral to be embedded in an iframe. Disabled by default to prevent clickjacking.
 
 #### `self_update`
 **Default:** `false`
 
-Allow MeshCentral to update itself automatically. Not recommended in the add-on context — the add-on controls the MeshCentral version. Leave `false`.
+Allow MeshCentral to update itself. Not recommended — the add-on controls the version.
 
 #### `maintenance_mode`
 **Default:** `false`
 
-When `true`, MeshCentral blocks all user logins and shows a maintenance message. Agents stay connected. Useful when doing configuration changes without disconnecting devices.
+Block all user logins while keeping agents connected. Useful during configuration changes.
 
 #### `auto_remove_inactive_devices`
 **Default:** `0` _(disabled)_
 
-Automatically remove devices that have been offline for more than this many days. Set to `0` to never auto-remove devices.
+Auto-remove devices offline for more than this many days. `0` = never.
 
 ---
 
 ### Agent IP filtering
 
-#### `agent_allowed_ip`
+#### `agent_allowed_ip` / `agent_blocked_ip`
 **Default:** _(empty)_
 
-Comma-separated list of IP addresses or CIDR ranges that agents are allowed to connect from. Leave empty to allow agents from any IP.
-
-#### `agent_blocked_ip`
-**Default:** _(empty)_
-
-Comma-separated list of IP addresses or CIDR ranges that are blocked from connecting as agents.
+Comma-separated IP addresses or CIDR ranges for agent connection control.
 
 ---
 
@@ -204,58 +210,51 @@ Comma-separated list of IP addresses or CIDR ranges that are blocked from connec
 #### `backup_interval_hours`
 **Default:** `24`
 
-How often MeshCentral creates an automatic backup of its database and configuration, in hours. Set to `0` to disable automatic backups.
+How often MeshCentral auto-backs up its database. `0` = disabled.
 
 #### `backup_keep_days`
 **Default:** `10`
 
-How many days of automatic backups to keep. Older backups are deleted automatically.
+How many days of backups to keep.
 
 #### `backup_zip_password`
 **Default:** _(empty)_
 
-Optional password to encrypt backup ZIP files. Leave empty for unencrypted backups.
+Optional password to encrypt backup ZIP files.
 
 ---
 
 ### Email (SMTP)
 
-SMTP allows MeshCentral to send email notifications — for example, when a device goes offline, for account verification, or for 2FA codes.
-
 #### `smtp_enabled`
 **Default:** `false`
 
-Enable SMTP email sending. Set to `true` and fill in the fields below to activate.
+Enable SMTP email for notifications, account verification and 2FA codes.
 
-#### `smtp_host`
-**Default:** _(empty)_
+#### `smtp_host` / `smtp_port` / `smtp_from` / `smtp_user` / `smtp_pass` / `smtp_tls`
 
-Hostname of your SMTP server, e.g. `smtp.gmail.com` or `mail.example.com`.
+Standard SMTP settings. Port `587` with TLS is recommended. See your email provider for details.
 
-#### `smtp_port`
-**Default:** `587`
+---
 
-SMTP port. Common values: `587` (STARTTLS), `465` (SSL), `25` (plain, not recommended).
+## Login Tokens vs LoginKey — what's the difference?
 
-#### `smtp_from`
-**Default:** _(empty)_
+There are two separate "key" concepts in MeshCentral that are easy to confuse:
 
-The "from" email address used for outgoing messages, e.g. `meshcentral@example.com`.
+| | What it is | Where to find it | Purpose |
+|---|---|---|---|
+| **Login Token** | Per-user temporary token | MeshCentral → My Account → Login Tokens | Used as `~t:...` username in the HA integration to bypass 2FA. Enabled by `allow_login_token: true` in this add-on. |
+| **LoginKey (3FA)** | Server-level URL access key | Generated with `--logintokenkey`, stored in the database | Requires `?key=<value>` on all URLs — effectively hides the login page from anyone without the key. Advanced use only. |
 
-#### `smtp_user`
-**Default:** _(empty)_
+**Most users only need Login Tokens** (the first row). Enable `allow_login_token` in this add-on, create a token in My Account, and use it in the HA integration.
 
-SMTP username for authentication.
+**LoginKey (3FA)** is an advanced server-hardening feature. It is not configurable via the add-on UI — if you need it, you must enable it manually after the add-on starts by exec'ing into the container and running:
 
-#### `smtp_pass`
-**Default:** _(empty)_
+```bash
+node /opt/meshcentral/node_modules/meshcentral --logintokenkey
+```
 
-SMTP password for authentication. Stored securely.
-
-#### `smtp_tls`
-**Default:** `true`
-
-Enable TLS/STARTTLS for the SMTP connection. Should be `true` for port 587. Set to `false` only if your SMTP server does not support TLS.
+This prints the server's LoginKey. To use it, the HA integration's **Login Key** field must be set to this value. See [ha-meshcentral issue #12](https://github.com/andlo/ha-meshcentral/issues/12) for full details on how the integration handles this.
 
 ---
 
