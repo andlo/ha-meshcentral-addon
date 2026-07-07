@@ -50,6 +50,14 @@ configuration:
       How long a user session stays active without any activity before requiring re-login.
       Set to 0 for sessions that never expire automatically. Default is 60 minutes.
 
+  allow_login_token:
+    name: Enable Login Tokens (required for HA integration with 2FA)
+    description: >-
+      Enable support for per-user Login Tokens (~t:... username format).
+      Required when using the MeshCentral HA integration with accounts that have 2FA enabled.
+      When enabled, users can generate tokens under My Account → Login Tokens and use them
+      instead of their password. Disabled by default.
+
   tls_offload:
     name: TLS offload (reverse proxy)
     description: >-

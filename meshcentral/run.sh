@@ -5,6 +5,7 @@ SERVER_MODE=$(bashio::config 'server_mode')
 NEW_ACCOUNTS=$(bashio::config 'new_accounts')
 DOMAIN_TITLE=$(bashio::config 'domain_title')
 SESSION_TIME=$(bashio::config 'session_time')
+ALLOW_LOGIN_TOKEN=$(bashio::config 'allow_login_token')
 TLS_OFFLOAD=$(bashio::config 'tls_offload')
 WEB_RTC=$(bashio::config 'web_rtc')
 COMPRESSION=$(bashio::config 'compression')
@@ -82,6 +83,13 @@ SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$TLS_OFFLOAD" '. + {tlsOffload: $v
 # Trusted proxy (optional)
 if bashio::config.has_value 'trusted_proxy'; then
     SETTINGS=$(echo "$SETTINGS" | jq --arg v "$(bashio::config 'trusted_proxy')" '. + {trustedProxy: $v}')
+fi
+
+# Login Token support — required for ~t:... tokens used by the HA integration
+# See: https://github.com/andlo/ha-meshcentral/issues/12
+if [ "$ALLOW_LOGIN_TOKEN" = "true" ]; then
+    SETTINGS=$(echo "$SETTINGS" | jq '. + {allowLoginToken: true}')
+    bashio::log.info "Login Tokens enabled (allowLoginToken: true)"
 fi
 
 # Session
@@ -205,6 +213,12 @@ bashio::log.info "config.json written."
 
 if [ "$NEW_ACCOUNTS" = "true" ]; then
     bashio::log.warning "new_accounts is ON — remember to disable it after creating your admin account!"
+fi
+
+if [ "$ALLOW_LOGIN_TOKEN" = "true" ]; then
+    bashio::log.info "Login Tokens are enabled. To use them in the MeshCentral HA integration,"
+    bashio::log.info "go to MeshCentral → My Account → Login Tokens and create a token."
+    bashio::log.info "Use the generated username (~t:...) and password in the integration setup."
 fi
 
 # ── Start MeshCentral ─────────────────────────────────────────────────────────

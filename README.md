@@ -91,7 +91,14 @@ Settings for the integration:
 - **Use SSL:** off
 - **Verify SSL:** off
 
-> If your account has 2FA enabled, create a Login Token in MeshCentral → My Account → Login Tokens and use those credentials instead.
+> **If your account has 2FA enabled**, you must:
+> 1. Enable `allow_login_token: true` in the add-on **Configuration** tab and restart
+> 2. In MeshCentral → **My Account** → **Login Tokens**, create a token
+> 3. Use the generated username (`~t:...`) and token password in the integration setup instead of your normal credentials
+>
+> Without `allow_login_token` enabled in the add-on, MeshCentral will reject Login Tokens and the integration will fail to authenticate.
+>
+> See [ha-meshcentral issue #12](https://github.com/andlo/ha-meshcentral/issues/12) for full background.
 
 ## Configuration
 
@@ -127,6 +134,7 @@ All settings are in the add-on **Configuration** tab. No JSON files to edit. The
 |--------|---------|-------------|
 | `session_key` | *(auto)* | Secret key for session cookies. Leave empty to auto-generate a new key on every start |
 | `session_time` | `60` | Session duration in minutes before the user must re-authenticate |
+| `allow_login_token` | `false` | Enable per-user Login Tokens (`~t:...` username). **Required when using the HA integration with 2FA accounts.** Users create tokens under My Account → Login Tokens. See the [HA integration section](#install-the-ha-integration) below. |
 | `no_2fa` | `false` | Disable two-factor authentication (2FA) for all users. Not recommended for internet-facing servers |
 | `max_invalid_login_count` | `10` | Maximum number of failed login attempts from an IP before it is temporarily blocked |
 | `max_invalid_login_time` | `10` | Time window in minutes for counting failed login attempts |
@@ -207,3 +215,4 @@ This is expected — MeshCentral generates a self-signed certificate. Click **Ad
 ## License
 
 MIT
+
