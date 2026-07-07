@@ -1,5 +1,11 @@
 # Changelog
 
+## \[0.2.12\] - 2026-07-07
+
+### Added
+
+- `allow_login_token` — enable per-user Login Tokens (`~t:...` username format). Required when using the [MeshCentral HA integration](https://github.com/andlo/ha-meshcentral) with accounts that have 2FA enabled, since the integration authenticates using a Login Token instead of a password. Disabled by default. See [ha-meshcentral#12](https://github.com/andlo/ha-meshcentral/issues/12).
+
 ## \[0.2.11\] - 2026-05-01
 
 ### Added
