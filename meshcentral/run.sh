@@ -16,6 +16,7 @@ NO_2FA=$(bashio::config 'no_2fa')
 SITE_STYLE=$(bashio::config 'site_style')
 GUEST_SHARING=$(bashio::config 'guest_device_sharing')
 ALLOW_FRAMING=$(bashio::config 'allow_framing')
+PLUGINS=$(bashio::config 'plugins')
 LOGIN_COUNT=$(bashio::config 'max_invalid_login_count')
 LOGIN_TIME=$(bashio::config 'max_invalid_login_time')
 AUTO_REMOVE=$(bashio::config 'auto_remove_inactive_devices')
@@ -29,6 +30,8 @@ AGENT_ALIAS_PORT=$(bashio::config 'agent_alias_port')
 AGENT_PONG=$(bashio::config 'agent_pong')
 BROWSER_PONG=$(bashio::config 'browser_pong')
 MINIFY=$(bashio::config 'minify')
+OIDC_ENABLED=$(bashio::config 'oidc_enabled')
+OIDC_NEW_ACCOUNTS=$(bashio::config 'oidc_new_accounts')
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 DATA_PATH="/data/meshcentral-data"
@@ -142,6 +145,13 @@ if [ "$NO_2FA" = "true" ]; then
     SETTINGS=$(echo "$SETTINGS" | jq '. + {no2FactorAuth: true}')
 fi
 
+# Plugins — adds the Plugins tab under My Server where plugins are installed and managed.
+# Installed plugins live under the datapath and survive add-on restarts and updates.
+if [ "$PLUGINS" = "true" ]; then
+    SETTINGS=$(echo "$SETTINGS" | jq '. + {plugins: {enabled: true}}')
+    bashio::log.info "Plugins enabled (plugins.enabled: true)"
+fi
+
 # Invalid login rate limiting
 SETTINGS=$(echo "$SETTINGS" | jq \
     --argjson cnt "$LOGIN_COUNT" \
@@ -201,6 +211,25 @@ fi
 
 if [ "$MINIFY" = "true" ]; then
     DOMAIN=$(echo "$DOMAIN" | jq '. + {minify: true}')
+# OIDC single sign-on (optional)
+if [ "$OIDC_ENABLED" = "true" ]; then
+    if bashio::config.has_value 'oidc_issuer' && bashio::config.has_value 'oidc_client_id' && bashio::config.has_value 'oidc_client_secret'; then
+        OIDC_JSON=$(jq -n \
+            --arg     iss "$(bashio::config 'oidc_issuer')" \
+            --arg     cid "$(bashio::config 'oidc_client_id')" \
+            --arg     sec "$(bashio::config 'oidc_client_secret')" \
+            --argjson na  "$OIDC_NEW_ACCOUNTS" \
+            '{issuer: $iss, client: {client_id: $cid, client_secret: $sec}, newAccounts: $na}')
+        # redirect_uri defaults to https://<host>/auth-oidc-callback inside MeshCentral;
+        # only override it when explicitly configured.
+        if bashio::config.has_value 'oidc_callback_url'; then
+            OIDC_JSON=$(echo "$OIDC_JSON" | jq --arg v "$(bashio::config 'oidc_callback_url')" '.client += {redirect_uri: $v}')
+        fi
+        DOMAIN=$(echo "$DOMAIN" | jq --argjson v "$OIDC_JSON" '. + {authStrategies: {oidc: $v}}')
+        bashio::log.info "OIDC single sign-on enabled (issuer: $(bashio::config 'oidc_issuer'))"
+    else
+        bashio::log.warning "oidc_enabled is true but oidc_issuer, oidc_client_id or oidc_client_secret is missing — OIDC not configured."
+    fi
 fi
 
 DOMAIN=$(echo "$DOMAIN" | jq --arg rp "$RECORDINGS_PATH" \

@@ -159,6 +159,7 @@ All settings are in the add-on **Configuration** tab. No JSON files to edit. The
 | `self_update` | `false` | Let MeshCentral automatically update itself after midnight |
 | `maintenance_mode` | `false` | When enabled, only administrators can log in |
 | `minify` | `false` | Serve reduced-size web pages to save bandwidth |
+| `plugins` | `false` | Enable the plugin system — adds a Plugins tab under My Server for installing and managing plugins |
 
 ### Backup
 
@@ -189,6 +190,18 @@ Only needed if you want account confirmation, password reset, and notification e
 | Option | Default | Description |
 |--------|---------|-------------|
 | `config_override` | *(empty)* | Raw JSON object deep-merged on top of the generated config.json as the last step. Reaches any MeshCentral setting the add-on has no dedicated option for — see the [MeshCentral config schema](https://github.com/Ylianst/MeshCentral/blob/master/meshcentral-config-schema.json). Invalid JSON is ignored with a warning |
+### Single sign-on (OIDC)
+
+Log in with an OpenID Connect identity provider (Authentik, Authelia, Keycloak, Pocket ID, …). Register an OAuth2/OIDC client in your provider with redirect URI `https://<your-meshcentral-host>/auth-oidc-callback`, then fill in the options below. Requires `cert_url` to be set.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `oidc_enabled` | `false` | Enable OIDC single sign-on — adds a "Sign in with" button to the login page |
+| `oidc_issuer` | *(empty)* | Issuer URL of your identity provider — the base URL serving `/.well-known/openid-configuration` |
+| `oidc_client_id` | *(empty)* | Client ID registered for MeshCentral in your provider |
+| `oidc_client_secret` | *(empty)* | Client secret registered for MeshCentral in your provider |
+| `oidc_callback_url` | *(auto)* | Redirect URI. Empty = MeshCentral default `https://<host>/auth-oidc-callback` |
+| `oidc_new_accounts` | `true` | Auto-create MeshCentral accounts on first OIDC login |
 
 ## Data storage
 

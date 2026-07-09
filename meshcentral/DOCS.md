@@ -210,6 +210,12 @@ Block all user logins while keeping agents connected. Useful during configuratio
 **Default:** `false`
 
 Serve reduced-size web pages to save bandwidth.
+#### `plugins`
+**Default:** `false`
+
+Enable the MeshCentral plugin system. When enabled, a **Plugins** tab appears under **My Server** where administrators can install, update and remove plugins from the [plugin registry](https://github.com/Ylianst/MeshCentral/blob/master/docs/docs/meshcentral/plugins.md) or from a plugin's `config.json` URL.
+
+Installed plugins are stored under `/data/meshcentral-data/plugins`, so they persist across add-on restarts, updates and Home Assistant backups.
 
 #### `auto_remove_inactive_devices`
 **Default:** `0` _(disabled)_
@@ -291,6 +297,38 @@ To expose MeshCentral through a Cloudflare Tunnel (e.g. the Cloudflared add-on) 
    - `alias_port: 443` (**required** — otherwise agent installers point at port 4430, which Cloudflare does not listen on, and agents never connect)
    - `agent_pong: 60` (Cloudflare drops idle WebSockets after ~100 s)
 3. Restart the add-on, then download **fresh** agent installers — previously downloaded installers contain the old URL and certificate hash and will not work.
+### Single sign-on (OIDC)
+
+Log in to MeshCentral with an OpenID Connect identity provider such as Authentik, Authelia, Keycloak or Pocket ID. When enabled, a "Sign in with" button appears on the login page.
+
+Setup in your identity provider: create an OAuth2/OIDC client (confidential, authorization code flow) with redirect URI `https://<your-meshcentral-host>/auth-oidc-callback`, then copy the client ID and secret into the options below.
+
+> **Note:** OIDC requires MeshCentral to be reachable on a stable HTTPS URL — set `cert_url` and use `wan` or `hybrid` mode.
+
+#### `oidc_enabled`
+**Default:** `false`
+
+Master switch for OIDC single sign-on. Requires `oidc_issuer`, `oidc_client_id` and `oidc_client_secret` to be set.
+
+#### `oidc_issuer`
+**Default:** _(empty)_
+
+The issuer URL of your identity provider — the base URL that serves `/.well-known/openid-configuration`. Examples: `https://auth.example.com` (Authentik/Authelia/Pocket ID), `https://keycloak.example.com/realms/main` (Keycloak).
+
+#### `oidc_client_id` / `oidc_client_secret`
+**Default:** _(empty)_
+
+The client credentials registered for MeshCentral in your identity provider.
+
+#### `oidc_callback_url`
+**Default:** _(empty — auto)_
+
+Redirect URI the identity provider sends users back to. Leave empty to use MeshCentral's default, `https://<host>/auth-oidc-callback`. Only set this if your setup needs a different callback than the default.
+
+#### `oidc_new_accounts`
+**Default:** `true`
+
+Automatically create a MeshCentral account the first time a user signs in via OIDC. Disable to only allow OIDC login for existing accounts.
 
 ---
 

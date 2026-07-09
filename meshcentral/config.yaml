@@ -42,6 +42,7 @@
     "auto_remove_inactive_devices": 0,
     "guest_device_sharing": true,
     "allow_framing": false,
+    "plugins": false,
     "user_allowed_ip": "",
     "user_blocked_ip": "",
     "agent_allowed_ip": "",
@@ -65,6 +66,12 @@
     "smtp_pass": "",
     "smtp_tls": true,
     "config_override": ""
+    "oidc_enabled": false,
+    "oidc_issuer": "",
+    "oidc_client_id": "",
+    "oidc_client_secret": "",
+    "oidc_callback_url": "",
+    "oidc_new_accounts": true
   },
   "schema": {
     "server_mode": "list(lan|wan|hybrid)",
@@ -90,6 +97,7 @@
     "auto_remove_inactive_devices": "int",
     "guest_device_sharing": "bool",
     "allow_framing": "bool",
+    "plugins": "bool",
     "user_allowed_ip": "str?",
     "user_blocked_ip": "str?",
     "agent_allowed_ip": "str?",
@@ -113,6 +121,12 @@
     "smtp_pass": "password?",
     "smtp_tls": "bool?",
     "config_override": "str?"
+    "oidc_enabled": "bool",
+    "oidc_issuer": "str?",
+    "oidc_client_id": "str?",
+    "oidc_client_secret": "password?",
+    "oidc_callback_url": "str?",
+    "oidc_new_accounts": "bool"
   },
   "map": [
     "data:rw"
