@@ -5,6 +5,7 @@
 ### Added
 
 - **OIDC single sign-on** — log in to MeshCentral with an OpenID Connect identity provider (Authentik, Authelia, Keycloak, Pocket ID, …). New options: `oidc_enabled`, `oidc_issuer`, `oidc_client_id`, `oidc_client_secret`, `oidc_callback_url` (optional, defaults to `https://<host>/auth-oidc-callback`), `oidc_new_accounts`. Disabled by default.
+- `plugins` — enable the MeshCentral plugin system. Adds a **Plugins** tab under **My Server** where administrators can install, update and remove plugins. Installed plugins are stored under `/data/meshcentral-data/plugins` and persist across restarts, updates and backups. Disabled by default.
 
 ## \[0.2.12\] - 2026-07-07
 

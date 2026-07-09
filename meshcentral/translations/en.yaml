@@ -138,6 +138,14 @@ configuration:
       Disabled by default to prevent clickjacking. Only enable if you need to embed MeshCentral
       in another dashboard.
 
+  plugins:
+    name: Enable plugins
+    description: >-
+      Enable the MeshCentral plugin system. Adds a Plugins tab under My Server where
+      administrators can install, update and remove plugins (e.g. event log, routing).
+      Installed plugins are stored in the add-on data folder and survive restarts and updates.
+      Disabled by default.
+
   user_allowed_ip:
     name: Allowed user IPs
     description: >-
