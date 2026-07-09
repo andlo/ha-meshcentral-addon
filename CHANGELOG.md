@@ -1,5 +1,11 @@
 # Changelog
 
+## \[0.2.13\] - 2026-07-09
+
+### Added
+
+- `plugins` — enable the MeshCentral plugin system. Adds a **Plugins** tab under **My Server** where administrators can install, update and remove plugins. Installed plugins are stored under `/data/meshcentral-data/plugins` and persist across restarts, updates and backups. Disabled by default.
+
 ## \[0.2.12\] - 2026-07-07
 
 ### Added

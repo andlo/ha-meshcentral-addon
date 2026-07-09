@@ -189,6 +189,13 @@ Allow MeshCentral to update itself. Not recommended — the add-on controls the 
 
 Block all user logins while keeping agents connected. Useful during configuration changes.
 
+#### `plugins`
+**Default:** `false`
+
+Enable the MeshCentral plugin system. When enabled, a **Plugins** tab appears under **My Server** where administrators can install, update and remove plugins from the [plugin registry](https://github.com/Ylianst/MeshCentral/blob/master/docs/docs/meshcentral/plugins.md) or from a plugin's `config.json` URL.
+
+Installed plugins are stored under `/data/meshcentral-data/plugins`, so they persist across add-on restarts, updates and Home Assistant backups.
+
 #### `auto_remove_inactive_devices`
 **Default:** `0` _(disabled)_
 
