@@ -153,6 +153,7 @@ All settings are in the add-on **Configuration** tab. No JSON files to edit. The
 | `allow_high_quality_desktop` | `true` | Allow users to set remote desktop quality above 60%. Set to `false` to cap quality and reduce bandwidth |
 | `self_update` | `false` | Let MeshCentral automatically update itself after midnight |
 | `maintenance_mode` | `false` | When enabled, only administrators can log in |
+| `plugins` | `false` | Enable the plugin system — adds a Plugins tab under My Server for installing and managing plugins |
 
 ### Backup
 
