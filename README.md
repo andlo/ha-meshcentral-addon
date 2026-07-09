@@ -74,7 +74,7 @@ To reach MeshCentral and your agents from outside your home network, set these t
 Enable **Remote Access** in Nabu Casa and paste your Nabu Casa URL as `cert_url`.
 
 ### Via Cloudflare Tunnel (free, no port-forwarding)
-Set up a tunnel pointing to `http://homeassistant.local:4430` and use the tunnel URL as `cert_url`.
+Set up a tunnel pointing to `http://homeassistant.local:4430` and use the tunnel URL as `cert_url`. Then set `tls_offload: true`, **`alias_port: 443`** (required — without it agent installers point at port 4430, which Cloudflare does not listen on, and agents never connect) and `agent_pong: 60` (Cloudflare drops idle WebSockets after ~100 s). Re-download agent installers after changing these.
 
 ### Via port forwarding
 Forward port `4430` on your router to your HA host and use your external IP or domain as `cert_url`.
@@ -111,6 +111,11 @@ All settings are in the add-on **Configuration** tab. No JSON files to edit. The
 | `server_mode` | `lan` | `lan` = local network only, `wan` = internet (requires `cert_url`), `hybrid` = both |
 | `cert_url` | *(empty)* | Your full external URL. Required for agents connecting from outside your local network |
 | `agent_port` | `0` | Optional dedicated HTTPS port for agent connections only. `0` = disabled, agents use the main port |
+| `alias_port` | `0` | Publicly visible HTTPS port when behind a reverse proxy/tunnel on a different port. **Set to `443` behind Cloudflare Tunnel** so agent installers use the right port. `0` = disabled |
+| `agent_alias_port` | `0` | Publicly visible port for the dedicated agent port, when proxied. `0` = disabled |
+| `agent_alias_dns` | *(empty)* | Optional separate DNS name agents use for the dedicated agent port |
+| `agent_pong` | `0` | Agent keepalive interval in seconds. Set to `60` behind Cloudflare (drops idle WebSockets after ~100 s). `0` = disabled |
+| `browser_pong` | `0` | Browser keepalive interval in seconds — same purpose as `agent_pong` for web sessions. `0` = disabled |
 | `mps_port` | `4433` | Port for Intel AMT Client Initiated Remote Access (CIRA) connections |
 | `web_rtc` | `false` | Enable WebRTC for direct peer-to-peer connections between agent and browser — reduces server relay load |
 | `compression` | `true` | Enable GZIP compression for web requests |
@@ -153,6 +158,7 @@ All settings are in the add-on **Configuration** tab. No JSON files to edit. The
 | `allow_high_quality_desktop` | `true` | Allow users to set remote desktop quality above 60%. Set to `false` to cap quality and reduce bandwidth |
 | `self_update` | `false` | Let MeshCentral automatically update itself after midnight |
 | `maintenance_mode` | `false` | When enabled, only administrators can log in |
+| `minify` | `false` | Serve reduced-size web pages to save bandwidth |
 
 ### Backup
 
@@ -177,6 +183,12 @@ Only needed if you want account confirmation, password reset, and notification e
 | `smtp_user` | *(empty)* | SMTP login username |
 | `smtp_pass` | *(empty)* | SMTP login password |
 | `smtp_tls` | `true` | Enable TLS for the SMTP connection |
+
+### Advanced
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `config_override` | *(empty)* | Raw JSON object deep-merged on top of the generated config.json as the last step. Reaches any MeshCentral setting the add-on has no dedicated option for — see the [MeshCentral config schema](https://github.com/Ylianst/MeshCentral/blob/master/meshcentral-config-schema.json). Invalid JSON is ignored with a warning |
 
 ## Data storage
 

@@ -1,6 +1,6 @@
 {
   "name": "MeshCentral",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "slug": "meshcentral",
   "description": "Self-hosted remote device management — monitor and control your PCs from Home Assistant",
   "url": "https://github.com/andlo/ha-meshcentral-addon",
@@ -47,6 +47,12 @@
     "agent_allowed_ip": "",
     "agent_blocked_ip": "",
     "agent_port": 0,
+    "alias_port": 0,
+    "agent_alias_port": 0,
+    "agent_alias_dns": "",
+    "agent_pong": 0,
+    "browser_pong": 0,
+    "minify": false,
     "mps_port": 4433,
     "backup_interval_hours": 24,
     "backup_keep_days": 10,
@@ -57,7 +63,8 @@
     "smtp_from": "",
     "smtp_user": "",
     "smtp_pass": "",
-    "smtp_tls": true
+    "smtp_tls": true,
+    "config_override": ""
   },
   "schema": {
     "server_mode": "list(lan|wan|hybrid)",
@@ -88,6 +95,12 @@
     "agent_allowed_ip": "str?",
     "agent_blocked_ip": "str?",
     "agent_port": "int",
+    "alias_port": "int",
+    "agent_alias_port": "int",
+    "agent_alias_dns": "str?",
+    "agent_pong": "int",
+    "browser_pong": "int",
+    "minify": "bool",
     "mps_port": "int",
     "backup_interval_hours": "int",
     "backup_keep_days": "int",
@@ -98,7 +111,8 @@
     "smtp_from": "str?",
     "smtp_user": "str?",
     "smtp_pass": "password?",
-    "smtp_tls": "bool?"
+    "smtp_tls": "bool?",
+    "config_override": "str?"
   },
   "map": [
     "data:rw"

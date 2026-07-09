@@ -75,6 +75,23 @@ IP address or CIDR range of your reverse proxy, e.g. `192.168.1.1` or `172.16.0.
 
 If set to a non-zero port number, MeshCentral opens a dedicated HTTPS port exclusively for agent connections, separate from the main web interface port (4430). Set to `0` to use the main port for everything.
 
+#### `alias_port`
+**Default:** `0` _(disabled)_
+
+The publicly visible HTTPS port when MeshCentral runs behind a reverse proxy or tunnel that listens on a different port than MeshCentral itself. This controls the port MeshCentral writes into agent installers and generated links.
+
+**Important for Cloudflare Tunnel / reverse proxies on port 443:** without this, agent installers point at port 4430, which the proxy does not listen on, and agents can never connect. Set `alias_port: 443` so agents connect through the proxy's HTTPS port.
+
+#### `agent_alias_port` / `agent_alias_dns`
+**Default:** `0` / _(empty)_
+
+Same aliasing for the dedicated agent port (`agent_port`): the publicly visible port and optional separate DNS name agents should use. Only relevant when `agent_port` is set.
+
+#### `agent_pong` / `browser_pong`
+**Default:** `0` _(disabled)_
+
+Send keepalive data to connected agents/browsers every this many seconds. Needed behind proxies that drop idle WebSocket connections — Cloudflare, for example, closes idle connections after ~100 seconds, causing agents to disconnect and reconnect repeatedly. `60` is a good value behind Cloudflare.
+
 #### `mps_port`
 **Default:** `4433`
 
@@ -189,6 +206,11 @@ Allow MeshCentral to update itself. Not recommended — the add-on controls the 
 
 Block all user logins while keeping agents connected. Useful during configuration changes.
 
+#### `minify`
+**Default:** `false`
+
+Serve reduced-size web pages to save bandwidth.
+
 #### `auto_remove_inactive_devices`
 **Default:** `0` _(disabled)_
 
@@ -234,6 +256,41 @@ Enable SMTP email for notifications, account verification and 2FA codes.
 #### `smtp_host` / `smtp_port` / `smtp_from` / `smtp_user` / `smtp_pass` / `smtp_tls`
 
 Standard SMTP settings. Port `587` with TLS is recommended. See your email provider for details.
+
+---
+
+### Advanced: `config_override`
+
+**Default:** _(empty)_
+
+A raw JSON object that is deep-merged **on top of** the generated `config.json` as the very last step. This makes every MeshCentral setting reachable, even ones this add-on has no dedicated option for — Let's Encrypt, SMS/messaging 2FA, CrowdSec, session recording policy, and everything else in the [MeshCentral config schema](https://github.com/Ylianst/MeshCentral/blob/master/meshcentral-config-schema.json).
+
+Example — enable session recording and a Telegram bot for notifications:
+
+```json
+{"domains":{"":{"sessionRecording":true}},"messaging":{"telegram":{"apiid":123456,"apihash":"...","bottoken":"..."}}}
+```
+
+Notes:
+
+- The value must be a single JSON **object**. Invalid JSON is ignored with a warning in the add-on log — the add-on still starts with the generated config.
+- Keys you set here win over the add-on's generated values (deep merge, object by object).
+- Use sparingly: prefer the dedicated options above where they exist, since those are validated by the add-on UI.
+
+---
+
+### Recipe: Cloudflare Tunnel
+
+To expose MeshCentral through a Cloudflare Tunnel (e.g. the Cloudflared add-on) so both browsers **and agents** work:
+
+1. In the Cloudflared add-on, add an `additional_hosts` entry: `hostname: mesh.example.com` → `service: http://homeassistant:4430`.
+2. In this add-on, set:
+   - `server_mode: hybrid` (or `wan`)
+   - `cert_url: https://mesh.example.com`
+   - `tls_offload: true` (Cloudflare terminates TLS; the tunnel speaks plain HTTP to the add-on)
+   - `alias_port: 443` (**required** — otherwise agent installers point at port 4430, which Cloudflare does not listen on, and agents never connect)
+   - `agent_pong: 60` (Cloudflare drops idle WebSockets after ~100 s)
+3. Restart the add-on, then download **fresh** agent installers — previously downloaded installers contain the old URL and certificate hash and will not work.
 
 ---
 
