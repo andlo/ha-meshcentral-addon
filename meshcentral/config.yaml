@@ -1,6 +1,6 @@
 {
   "name": "MeshCentral",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "slug": "meshcentral",
   "description": "Self-hosted remote device management — monitor and control your PCs from Home Assistant",
   "url": "https://github.com/andlo/ha-meshcentral-addon",
@@ -57,7 +57,13 @@
     "smtp_from": "",
     "smtp_user": "",
     "smtp_pass": "",
-    "smtp_tls": true
+    "smtp_tls": true,
+    "oidc_enabled": false,
+    "oidc_issuer": "",
+    "oidc_client_id": "",
+    "oidc_client_secret": "",
+    "oidc_callback_url": "",
+    "oidc_new_accounts": true
   },
   "schema": {
     "server_mode": "list(lan|wan|hybrid)",
@@ -98,7 +104,13 @@
     "smtp_from": "str?",
     "smtp_user": "str?",
     "smtp_pass": "password?",
-    "smtp_tls": "bool?"
+    "smtp_tls": "bool?",
+    "oidc_enabled": "bool",
+    "oidc_issuer": "str?",
+    "oidc_client_id": "str?",
+    "oidc_client_secret": "password?",
+    "oidc_callback_url": "str?",
+    "oidc_new_accounts": "bool"
   },
   "map": [
     "data:rw"

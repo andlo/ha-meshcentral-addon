@@ -227,3 +227,40 @@ configuration:
     description: >-
       Enable TLS/STARTTLS for the SMTP connection. Should be enabled for port 587.
       Disable only if your SMTP server does not support TLS.
+
+  oidc_enabled:
+    name: Enable OIDC single sign-on
+    description: >-
+      Enable login via an OpenID Connect identity provider (e.g. Authentik, Authelia,
+      Keycloak, Pocket ID). Requires issuer, client ID and client secret below.
+      A "Sign in with" button appears on the MeshCentral login page.
+
+  oidc_issuer:
+    name: OIDC issuer URL
+    description: >-
+      The issuer URL of your identity provider — the base URL that serves
+      /.well-known/openid-configuration (e.g. https://auth.example.com or
+      https://keycloak.example.com/realms/main).
+
+  oidc_client_id:
+    name: OIDC client ID
+    description: >-
+      The client ID registered for MeshCentral in your identity provider.
+
+  oidc_client_secret:
+    name: OIDC client secret
+    description: >-
+      The client secret registered for MeshCentral in your identity provider. Stored securely.
+
+  oidc_callback_url:
+    name: OIDC callback URL (optional)
+    description: >-
+      Redirect URI your identity provider sends users back to after login.
+      Leave empty to use the default (https://<your host>/auth-oidc-callback).
+      Must match the redirect URI registered with your identity provider.
+
+  oidc_new_accounts:
+    name: Create accounts on first OIDC login
+    description: >-
+      Automatically create a MeshCentral account the first time a user signs in via OIDC.
+      Disable to only allow OIDC login for accounts that already exist.

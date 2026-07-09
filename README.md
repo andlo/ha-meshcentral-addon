@@ -178,6 +178,19 @@ Only needed if you want account confirmation, password reset, and notification e
 | `smtp_pass` | *(empty)* | SMTP login password |
 | `smtp_tls` | `true` | Enable TLS for the SMTP connection |
 
+### Single sign-on (OIDC)
+
+Log in with an OpenID Connect identity provider (Authentik, Authelia, Keycloak, Pocket ID, …). Register an OAuth2/OIDC client in your provider with redirect URI `https://<your-meshcentral-host>/auth-oidc-callback`, then fill in the options below. Requires `cert_url` to be set.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `oidc_enabled` | `false` | Enable OIDC single sign-on — adds a "Sign in with" button to the login page |
+| `oidc_issuer` | *(empty)* | Issuer URL of your identity provider — the base URL serving `/.well-known/openid-configuration` |
+| `oidc_client_id` | *(empty)* | Client ID registered for MeshCentral in your provider |
+| `oidc_client_secret` | *(empty)* | Client secret registered for MeshCentral in your provider |
+| `oidc_callback_url` | *(auto)* | Redirect URI. Empty = MeshCentral default `https://<host>/auth-oidc-callback` |
+| `oidc_new_accounts` | `true` | Auto-create MeshCentral accounts on first OIDC login |
+
 ## Data storage
 
 All data is stored under `/data` and included in HA's standard backup automatically.

@@ -24,6 +24,8 @@ MPS_PORT=$(bashio::config 'mps_port')
 BACKUP_INTERVAL=$(bashio::config 'backup_interval_hours')
 BACKUP_KEEP=$(bashio::config 'backup_keep_days')
 SMTP_ENABLED=$(bashio::config 'smtp_enabled')
+OIDC_ENABLED=$(bashio::config 'oidc_enabled')
+OIDC_NEW_ACCOUNTS=$(bashio::config 'oidc_new_accounts')
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 DATA_PATH="/data/meshcentral-data"
@@ -170,6 +172,27 @@ fi
 
 if bashio::config.has_value 'cert_url'; then
     DOMAIN=$(echo "$DOMAIN" | jq --arg v "$(bashio::config 'cert_url')" '. + {certUrl: $v}')
+fi
+
+# OIDC single sign-on (optional)
+if [ "$OIDC_ENABLED" = "true" ]; then
+    if bashio::config.has_value 'oidc_issuer' && bashio::config.has_value 'oidc_client_id' && bashio::config.has_value 'oidc_client_secret'; then
+        OIDC_JSON=$(jq -n \
+            --arg     iss "$(bashio::config 'oidc_issuer')" \
+            --arg     cid "$(bashio::config 'oidc_client_id')" \
+            --arg     sec "$(bashio::config 'oidc_client_secret')" \
+            --argjson na  "$OIDC_NEW_ACCOUNTS" \
+            '{issuer: $iss, client: {client_id: $cid, client_secret: $sec}, newAccounts: $na}')
+        # redirect_uri defaults to https://<host>/auth-oidc-callback inside MeshCentral;
+        # only override it when explicitly configured.
+        if bashio::config.has_value 'oidc_callback_url'; then
+            OIDC_JSON=$(echo "$OIDC_JSON" | jq --arg v "$(bashio::config 'oidc_callback_url')" '.client += {redirect_uri: $v}')
+        fi
+        DOMAIN=$(echo "$DOMAIN" | jq --argjson v "$OIDC_JSON" '. + {authStrategies: {oidc: $v}}')
+        bashio::log.info "OIDC single sign-on enabled (issuer: $(bashio::config 'oidc_issuer'))"
+    else
+        bashio::log.warning "oidc_enabled is true but oidc_issuer, oidc_client_id or oidc_client_secret is missing — OIDC not configured."
+    fi
 fi
 
 DOMAIN=$(echo "$DOMAIN" | jq --arg rp "$RECORDINGS_PATH" \

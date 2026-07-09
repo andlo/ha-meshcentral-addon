@@ -237,6 +237,41 @@ Standard SMTP settings. Port `587` with TLS is recommended. See your email provi
 
 ---
 
+### Single sign-on (OIDC)
+
+Log in to MeshCentral with an OpenID Connect identity provider such as Authentik, Authelia, Keycloak or Pocket ID. When enabled, a "Sign in with" button appears on the login page.
+
+Setup in your identity provider: create an OAuth2/OIDC client (confidential, authorization code flow) with redirect URI `https://<your-meshcentral-host>/auth-oidc-callback`, then copy the client ID and secret into the options below.
+
+> **Note:** OIDC requires MeshCentral to be reachable on a stable HTTPS URL — set `cert_url` and use `wan` or `hybrid` mode.
+
+#### `oidc_enabled`
+**Default:** `false`
+
+Master switch for OIDC single sign-on. Requires `oidc_issuer`, `oidc_client_id` and `oidc_client_secret` to be set.
+
+#### `oidc_issuer`
+**Default:** _(empty)_
+
+The issuer URL of your identity provider — the base URL that serves `/.well-known/openid-configuration`. Examples: `https://auth.example.com` (Authentik/Authelia/Pocket ID), `https://keycloak.example.com/realms/main` (Keycloak).
+
+#### `oidc_client_id` / `oidc_client_secret`
+**Default:** _(empty)_
+
+The client credentials registered for MeshCentral in your identity provider.
+
+#### `oidc_callback_url`
+**Default:** _(empty — auto)_
+
+Redirect URI the identity provider sends users back to. Leave empty to use MeshCentral's default, `https://<host>/auth-oidc-callback`. Only set this if your setup needs a different callback than the default.
+
+#### `oidc_new_accounts`
+**Default:** `true`
+
+Automatically create a MeshCentral account the first time a user signs in via OIDC. Disable to only allow OIDC login for existing accounts.
+
+---
+
 ## Login Tokens vs LoginKey — what's the difference?
 
 There are two separate "key" concepts in MeshCentral that are easy to confuse:
