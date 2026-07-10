@@ -1,5 +1,11 @@
 # Changelog
 
+## \[0.2.13\] - 2026-07-10
+
+### Changed
+
+- **Persistent storage** — MeshCentral's database, certificates, backups and recordings now live in the add-on configuration folder (`/addon_configs/<slug>_meshcentral`, the `addon_config` mapping) instead of `/data`. This folder survives add-on updates, rebuilds and uninstall/reinstall, and is reachable via the Samba **addon_configs** share. Existing installs are migrated automatically on first start.
+
 ## \[0.2.12\] - 2026-07-07
 
 ### Added
