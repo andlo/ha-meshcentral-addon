@@ -101,7 +101,8 @@
     "smtp_tls": "bool?"
   },
   "map": [
-    "data:rw"
+    "data:rw",
+    "addon_config:rw"
   ],
   "image": "ghcr.io/andlo/meshcentral-addon-{arch}",
   "homeassistant_api": false,
