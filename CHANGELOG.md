@@ -1,10 +1,14 @@
 # Changelog
 
-## \[0.2.13\] - 2026-07-09
+## \[0.2.13\] - 2026-07-10
 
 ### Added
 
-- `plugins` — enable the MeshCentral plugin system. Adds a **Plugins** tab under **My Server** where administrators can install, update and remove plugins. Installed plugins are stored under `/data/meshcentral-data/plugins` and persist across restarts, updates and backups. Disabled by default.
+- `plugins` — enable the MeshCentral plugin system. Adds a **Plugins** tab under **My Server** where administrators can install, update and remove plugins. Installed plugins are stored in the add-on's persistent data folder and persist across restarts, updates and backups. Disabled by default.
+
+### Changed
+
+- **Persistent storage** — MeshCentral's database, certificates, backups and recordings now live in the add-on configuration folder (`/addon_configs/<slug>_meshcentral`, the `addon_config` mapping) instead of `/data`. This folder survives add-on updates, rebuilds and uninstall/reinstall, and is reachable via the Samba **addon_configs** share. Existing installs are migrated automatically on first start.
 
 ## \[0.2.12\] - 2026-07-07
 

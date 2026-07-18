@@ -157,7 +157,7 @@ All settings are in the add-on **Configuration** tab. No JSON files to edit. The
 
 ### Backup
 
-Backups are stored at `/data/meshcentral-backups` and are included in Home Assistant's standard backup.
+Backups are stored in the add-on configuration folder (see [Data storage](#data-storage)) and are included in Home Assistant's standard backup.
 
 | Option | Default | Description |
 |--------|---------|-------------|
@@ -181,14 +181,16 @@ Only needed if you want account confirmation, password reset, and notification e
 
 ## Data storage
 
-All data is stored under `/data` and included in HA's standard backup automatically.
+All data is stored in the add-on configuration folder — `/addon_configs/<slug>_meshcentral` on the host, also reachable via the Samba **addon_configs** share. Unlike `/data`, this folder **survives add-on updates, rebuilds and even uninstall/reinstall**, and is included in HA's standard backup automatically.
 
 | Folder | Contents |
 |--------|----------|
-| `/data/meshcentral-data/` | Database and certificates |
-| `/data/meshcentral-data/meshcentral-files/` | Files shared via MeshCentral |
-| `/data/meshcentral-backups/` | Automatic server backups |
-| `/data/meshcentral-data/meshcentral-recordings/` | Session recordings |
+| `meshcentral-data/` | Database, certificates and the generated config.json |
+| `meshcentral-data/meshcentral-files/` | Files shared via MeshCentral |
+| `meshcentral-backups/` | Automatic server backups |
+| `meshcentral-data/meshcentral-recordings/` | Session recordings |
+
+Existing installs are migrated automatically: on first start after this change, anything found in the old `/data` location is copied over.
 
 ## Troubleshooting
 

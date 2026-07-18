@@ -27,11 +27,23 @@ BACKUP_KEEP=$(bashio::config 'backup_keep_days')
 SMTP_ENABLED=$(bashio::config 'smtp_enabled')
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-DATA_PATH="/data/meshcentral-data"
+# Everything lives in the add-on config folder (/addon_configs/<slug>, mounted
+# at /config) so the database and settings persist across updates, rebuilds
+# and reinstalls — unlike /data, which is deleted on uninstall.
+DATA_PATH="/config/meshcentral-data"
 FILES_PATH="${DATA_PATH}/meshcentral-files"
-BACKUP_PATH="/data/meshcentral-backups"
+BACKUP_PATH="/config/meshcentral-backups"
 RECORDINGS_PATH="${DATA_PATH}/meshcentral-recordings"
 CONFIG_FILE="${DATA_PATH}/config.json"
+
+# One-time migration from the old /data location
+if [ -d /data/meshcentral-data ] && [ ! -d "${DATA_PATH}" ]; then
+    cp -a /data/meshcentral-data "${DATA_PATH}"
+    bashio::log.info "Migrated MeshCentral data from /data to /config (persistent storage)."
+fi
+if [ -d /data/meshcentral-backups ] && [ ! -d "${BACKUP_PATH}" ]; then
+    cp -a /data/meshcentral-backups "${BACKUP_PATH}"
+fi
 
 # ── Hostname ──────────────────────────────────────────────────────────────────
 HOSTNAME=$(bashio::info.hostname)
