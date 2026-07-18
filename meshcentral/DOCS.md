@@ -182,7 +182,11 @@ Allow MeshCentral to be embedded in an iframe. Disabled by default to prevent cl
 #### `self_update`
 **Default:** `false`
 
-Allow MeshCentral to update itself. Not recommended — the add-on controls the version.
+Allow MeshCentral to update itself (either automatically, once daily, or via the "Check for updates" button in the MeshCentral web UI). **Not recommended, and left disabled by default.**
+
+Investigation ([issue #11](https://github.com/andlo/ha-meshcentral-addon/issues/11)) found the underlying mechanism to be unreliable regardless of trigger: MeshCentral runs as a parent/child process pair, and the parent detects an update request by string-matching the literal text `"Starting self upgrade..."` in the child's stdout — not by exit code. When stdout is a pipe rather than a TTY (as it always is inside a container), Node.js writes to it asynchronously, and the child calls `process.exit()` immediately after logging that line with no flush guarantee. If the process exits before the write is flushed, or the text is split across two stdout chunks, the parent never sees it, silently falls into its "unexpected restart" path, and the server just restarts on the same old version — no error, no update, no npm install ever run. This is an upstream MeshCentral fragility, not specific to this add-on's `run.sh` invocation.
+
+The add-on already provides a fully reliable update path: the Dockerfile installs MeshCentral via unpinned `npm install meshcentral`, so **updating the add-on itself always pulls the latest MeshCentral version.** Use that instead of `self_update`.
 
 #### `maintenance_mode`
 **Default:** `false`
