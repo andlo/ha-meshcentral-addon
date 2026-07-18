@@ -16,6 +16,7 @@ NO_2FA=$(bashio::config 'no_2fa')
 SITE_STYLE=$(bashio::config 'site_style')
 GUEST_SHARING=$(bashio::config 'guest_device_sharing')
 ALLOW_FRAMING=$(bashio::config 'allow_framing')
+PLUGINS=$(bashio::config 'plugins')
 LOGIN_COUNT=$(bashio::config 'max_invalid_login_count')
 LOGIN_TIME=$(bashio::config 'max_invalid_login_time')
 AUTO_REMOVE=$(bashio::config 'auto_remove_inactive_devices')
@@ -125,6 +126,13 @@ fi
 
 if [ "$NO_2FA" = "true" ]; then
     SETTINGS=$(echo "$SETTINGS" | jq '. + {no2FactorAuth: true}')
+fi
+
+# Plugins — adds the Plugins tab under My Server where plugins are installed and managed.
+# Installed plugins live under the datapath and survive add-on restarts and updates.
+if [ "$PLUGINS" = "true" ]; then
+    SETTINGS=$(echo "$SETTINGS" | jq '. + {plugins: {enabled: true}}')
+    bashio::log.info "Plugins enabled (plugins.enabled: true)"
 fi
 
 # Invalid login rate limiting
