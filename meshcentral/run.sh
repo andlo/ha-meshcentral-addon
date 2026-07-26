@@ -25,6 +25,11 @@ MPS_PORT=$(bashio::config 'mps_port')
 BACKUP_INTERVAL=$(bashio::config 'backup_interval_hours')
 BACKUP_KEEP=$(bashio::config 'backup_keep_days')
 SMTP_ENABLED=$(bashio::config 'smtp_enabled')
+ALIAS_PORT=$(bashio::config 'alias_port')
+AGENT_ALIAS_PORT=$(bashio::config 'agent_alias_port')
+AGENT_PONG=$(bashio::config 'agent_pong')
+BROWSER_PONG=$(bashio::config 'browser_pong')
+MINIFY=$(bashio::config 'minify')
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 # Everything lives in the add-on config folder (/addon_configs/<slug>, mounted
@@ -82,6 +87,28 @@ SETTINGS=$(echo "$SETTINGS" | jq \
 # Optional dedicated agent port
 if [ "$AGENT_PORT" -gt 0 ] 2>/dev/null; then
     SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$AGENT_PORT" '. + {agentPort: $v}')
+fi
+
+# Alias ports — the publicly visible ports when behind a reverse proxy or tunnel
+# that listens on a different port than MeshCentral itself (e.g. Cloudflare on 443).
+# These control the port written into agent installers and links.
+if [ "$ALIAS_PORT" -gt 0 ] 2>/dev/null; then
+    SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$ALIAS_PORT" '. + {aliasPort: $v}')
+fi
+if [ "$AGENT_ALIAS_PORT" -gt 0 ] 2>/dev/null; then
+    SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$AGENT_ALIAS_PORT" '. + {agentAliasPort: $v}')
+fi
+if bashio::config.has_value 'agent_alias_dns'; then
+    SETTINGS=$(echo "$SETTINGS" | jq --arg v "$(bashio::config 'agent_alias_dns')" '. + {agentAliasDNS: $v}')
+fi
+
+# Keepalive intervals — needed behind proxies that drop idle WebSockets
+# (e.g. Cloudflare closes idle connections after ~100 seconds).
+if [ "$AGENT_PONG" -gt 0 ] 2>/dev/null; then
+    SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$AGENT_PONG" '. + {agentPong: $v}')
+fi
+if [ "$BROWSER_PONG" -gt 0 ] 2>/dev/null; then
+    SETTINGS=$(echo "$SETTINGS" | jq --argjson v "$BROWSER_PONG" '. + {browserPong: $v}')
 fi
 
 # Cert / hostname
@@ -192,6 +219,10 @@ if bashio::config.has_value 'cert_url'; then
     DOMAIN=$(echo "$DOMAIN" | jq --arg v "$(bashio::config 'cert_url')" '. + {certUrl: $v}')
 fi
 
+if [ "$MINIFY" = "true" ]; then
+    DOMAIN=$(echo "$DOMAIN" | jq '. + {minify: true}')
+fi
+
 DOMAIN=$(echo "$DOMAIN" | jq --arg rp "$RECORDINGS_PATH" \
     '. + {sessionRecording: {filepath: $rp}}')
 
@@ -226,6 +257,19 @@ else
         --argjson domain   "$DOMAIN" \
         --argjson smtp     "$SMTP_JSON" \
         '{settings: $settings, domains: {"": $domain}, smtp: $smtp}')
+fi
+
+# ── Apply raw JSON overrides (advanced) ───────────────────────────────────────
+# config_override is deep-merged on top of the generated config as the last step,
+# so any MeshCentral setting can be reached even if the add-on has no option for it.
+if bashio::config.has_value 'config_override'; then
+    OVERRIDE=$(bashio::config 'config_override')
+    if echo "$OVERRIDE" | jq -e 'type == "object"' >/dev/null 2>&1; then
+        CONFIG=$(jq -n --argjson base "$CONFIG" --argjson ovr "$OVERRIDE" '$base * $ovr')
+        bashio::log.info "config_override applied on top of the generated config."
+    else
+        bashio::log.warning "config_override is not a valid JSON object — ignored."
+    fi
 fi
 
 echo "$CONFIG" > "$CONFIG_FILE"
