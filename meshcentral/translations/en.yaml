@@ -176,6 +176,44 @@ configuration:
       Optional separate HTTPS port exclusively for agent connections.
       Set to 0 (default) to use the main port (4430) for everything.
 
+  alias_port:
+    name: Public alias port
+    description: >-
+      The publicly visible HTTPS port when MeshCentral runs behind a reverse proxy or tunnel
+      that listens on a different port (e.g. set to 443 behind Cloudflare Tunnel or NGINX on 443).
+      Controls the port written into agent installers and links. Set to 0 (default) to disable.
+
+  agent_alias_port:
+    name: Agent alias port
+    description: >-
+      The publicly visible port for the dedicated agent port, when a reverse proxy in front of it
+      listens on a different port. Only relevant when a dedicated agent port is set.
+      Set to 0 (default) to disable.
+
+  agent_alias_dns:
+    name: Agent alias DNS name
+    description: >-
+      Optional DNS name agents use to connect to the dedicated agent port, if different
+      from the main hostname. Leave empty to use the main hostname.
+
+  agent_pong:
+    name: Agent keepalive interval (seconds)
+    description: >-
+      Send keepalive data to connected agents every this many seconds. Needed behind proxies
+      that drop idle WebSocket connections — e.g. set to 60 behind Cloudflare, which closes
+      idle connections after about 100 seconds. Set to 0 (default) to disable.
+
+  browser_pong:
+    name: Browser keepalive interval (seconds)
+    description: >-
+      Send keepalive data to connected browsers every this many seconds. Same purpose as the
+      agent keepalive, but for web sessions. Set to 0 (default) to disable.
+
+  minify:
+    name: Minify web pages
+    description: >-
+      Serve reduced-size web pages to save bandwidth. Disabled by default.
+
   mps_port:
     name: Intel AMT / MPS port
     description: >-
@@ -235,3 +273,11 @@ configuration:
     description: >-
       Enable TLS/STARTTLS for the SMTP connection. Should be enabled for port 587.
       Disable only if your SMTP server does not support TLS.
+
+  config_override:
+    name: Config override (advanced, raw JSON)
+    description: >-
+      Advanced — a JSON object deep-merged on top of the generated config.json as the last step.
+      Lets you set any MeshCentral option the add-on does not expose
+      (e.g. {"settings":{"sessionRecording":true}}). Invalid JSON is ignored with a warning.
+      See the MeshCentral config schema for all available settings.

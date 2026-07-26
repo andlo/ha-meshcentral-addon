@@ -1,5 +1,16 @@
 # Changelog
 
+## \[0.2.14\] - 2026-07-26
+
+### Added
+
+- **Reverse proxy / tunnel options** — makes MeshCentral fully usable behind Cloudflare Tunnel, NGINX Proxy Manager, Traefik, etc. (thanks @ddcash):
+  - `alias_port` — the publicly visible HTTPS port (e.g. `443` behind Cloudflare Tunnel). Without it, agent installers point at port 4430 and agents behind a proxy can never connect.
+  - `agent_alias_port` / `agent_alias_dns` — same aliasing for the dedicated agent port
+  - `agent_pong` / `browser_pong` — WebSocket keepalive intervals; needed behind proxies that drop idle connections (Cloudflare: ~100 s)
+- `minify` — serve reduced-size web pages
+- `config_override` — advanced: raw JSON object deep-merged on top of the generated config.json as the last step, making every MeshCentral setting reachable even without a dedicated add-on option
+
 ## \[0.2.13\] - 2026-07-10
 
 ### Added
