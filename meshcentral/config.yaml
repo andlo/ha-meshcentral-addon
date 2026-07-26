@@ -65,7 +65,7 @@
     "smtp_user": "",
     "smtp_pass": "",
     "smtp_tls": true,
-    "config_override": ""
+    "config_override": "",
     "oidc_enabled": false,
     "oidc_issuer": "",
     "oidc_client_id": "",
@@ -120,7 +120,7 @@
     "smtp_user": "str?",
     "smtp_pass": "password?",
     "smtp_tls": "bool?",
-    "config_override": "str?"
+    "config_override": "str?",
     "oidc_enabled": "bool",
     "oidc_issuer": "str?",
     "oidc_client_id": "str?",

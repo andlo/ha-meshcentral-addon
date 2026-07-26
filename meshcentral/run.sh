@@ -211,6 +211,8 @@ fi
 
 if [ "$MINIFY" = "true" ]; then
     DOMAIN=$(echo "$DOMAIN" | jq '. + {minify: true}')
+fi
+
 # OIDC single sign-on (optional)
 if [ "$OIDC_ENABLED" = "true" ]; then
     if bashio::config.has_value 'oidc_issuer' && bashio::config.has_value 'oidc_client_id' && bashio::config.has_value 'oidc_client_secret'; then
