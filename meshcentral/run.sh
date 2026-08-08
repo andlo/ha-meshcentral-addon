@@ -10,6 +10,8 @@ TLS_OFFLOAD=$(bashio::config 'tls_offload')
 WEB_RTC=$(bashio::config 'web_rtc')
 COMPRESSION=$(bashio::config 'compression')
 ALLOW_HQ_DESKTOP=$(bashio::config 'allow_high_quality_desktop')
+MSTSC=$(bashio::config 'mstsc')
+SSH_CLIENT=$(bashio::config 'ssh')
 SELF_UPDATE=$(bashio::config 'self_update')
 MAINTENANCE=$(bashio::config 'maintenance_mode')
 NO_2FA=$(bashio::config 'no_2fa')
@@ -201,7 +203,13 @@ DOMAIN=$(echo "$DOMAIN" | jq \
     --argjson ss   "$SITE_STYLE" \
     --argjson gs   "$GUEST_SHARING" \
     --argjson ar   "$AUTO_REMOVE" \
-    '. + {title: $ttl, newAccounts: $na, siteStyle: $ss, guestDeviceSharing: $gs, autoRemoveInactiveDevices: $ar}')
+    --argjson mst  "$MSTSC" \
+    --argjson sshc "$SSH_CLIENT" \
+    '. + {title: $ttl, newAccounts: $na, siteStyle: $ss, guestDeviceSharing: $gs, autoRemoveInactiveDevices: $ar, mstsc: $mst, ssh: $sshc}')
+
+if [ "$SSH_CLIENT" = "true" ] && { [ "$AGENT_PONG" -gt 0 ] 2>/dev/null || [ "$BROWSER_PONG" -gt 0 ] 2>/dev/null; }; then
+    bashio::log.warning "ssh is enabled together with agent_pong/browser_pong keepalive — agentless SSH sessions will break, as keepalive data gets mixed into the same WebSocket as SSH traffic."
+fi
 
 if bashio::config.has_value 'domain_title2'; then
     DOMAIN=$(echo "$DOMAIN" | jq --arg v "$(bashio::config 'domain_title2')" '. + {title2: $v}')

@@ -1,5 +1,14 @@
 # Changelog
 
+## \[0.2.15\] - 2026-08-08
+
+### Added
+
+- `mstsc` — enable/disable MeshCentral's built-in web-based RDP client (agentless RDP). Enabled by default, matching MeshCentral's own default.
+- `ssh` — enable MeshCentral's built-in web-based SSH client (agentless SSH). Disabled by default, matching MeshCentral's own default. A startup warning is logged if enabled together with `agent_pong`/`browser_pong`, since agentless SSH is incompatible with those keepalive options.
+
+Requested in [#12](https://github.com/andlo/ha-meshcentral-addon/issues/12).
+
 ## \[0.2.14\] - 2026-07-26
 
 ### Added

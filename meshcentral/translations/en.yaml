@@ -89,6 +89,22 @@ configuration:
       Allow agents to stream remote desktop at full quality.
       Disable to cap image quality and reduce bandwidth on slow connections.
 
+  mstsc:
+    name: Enable web-based RDP client
+    description: >-
+      Activates MeshCentral's built-in web-based RDP client, letting you connect to Windows devices
+      via RDP directly from the browser — including devices without the MeshAgent installed
+      (agentless). Enabled by default.
+
+  ssh:
+    name: Enable web-based SSH client
+    description: >-
+      Activates MeshCentral's built-in web-based SSH client, letting you connect to devices
+      via SSH directly from the browser — including devices without the MeshAgent installed
+      (agentless). Disabled by default. Note: agentless SSH is incompatible with the agent/browser
+      keepalive options above (agent_pong / browser_pong) — enabling those will break SSH sessions,
+      since keepalive data gets mixed into the same WebSocket as the SSH traffic.
+
   self_update:
     name: Allow MeshCentral self-update
     description: >-
