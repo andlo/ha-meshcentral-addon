@@ -246,6 +246,28 @@ Enable SMTP email for notifications, account verification and 2FA codes.
 
 Standard SMTP settings. Port `587` with TLS is recommended. See your email provider for details.
 
+### Advanced
+
+#### `config_override`
+**Default:** *(empty)*
+
+A raw JSON object that is deep-merged on top of the config.json generated from the options above,
+as the very last step before MeshCentral starts. Use it to reach any MeshCentral setting that
+doesn't have a dedicated option in this add-on yet — for example:
+
+```json
+{"settings": {"sessionRecording": true}}
+```
+
+Keys you set here always win over the add-on's generated values. Invalid JSON is ignored with a
+warning in the add-on log, so a mistake here won't stop MeshCentral from starting.
+
+If you need to inspect or hand-edit the resulting `config.json` directly, or access MeshCentral's
+native data directories (`meshcentral-data`, `meshcentral-files`, `meshcentral-backups`,
+`meshcentral-recordings`), they all live under this add-on's persistent config storage at
+`/addon_configs/70c331ea_meshcentral/` on the Home Assistant host — reachable with the Samba or
+File editor add-on. This is the same location used across add-on restarts, updates and reinstalls.
+
 ---
 
 ## Login Tokens vs LoginKey — what's the difference?

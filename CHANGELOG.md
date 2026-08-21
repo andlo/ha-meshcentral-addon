@@ -1,5 +1,13 @@
 # Changelog
 
+## \[0.2.16\] - 2026-08-21
+
+### Documentation
+
+- Documented `config_override` (the deep-merge raw JSON escape hatch) and the location of MeshCentral's persistent data directories under the add-on's config storage. Both already existed but weren't covered in DOCS.md.
+
+Follow-up to [#17](https://github.com/andlo/ha-meshcentral-addon/issues/17).
+
 ## \[0.2.15\] - 2026-08-08
 
 ### Added
