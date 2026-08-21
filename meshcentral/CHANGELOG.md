@@ -1,5 +1,15 @@
 # Changelog
 
+## \[0.2.17\] - 2026-08-21
+
+### Added
+
+- Custom AppArmor profile (`apparmor.txt`), replacing Supervisor's default profile with one scoped to what the add-on actually needs: S6/bashio boilerplate, `node`/`jq`, `/opt/meshcentral`, and the `/config` + `/data` storage paths. Improves the add-on's security rating and reduces its default attack surface.
+
+  **Note:** this is a first pass, built from code review rather than live audit-log testing. If you notice the add-on failing to start, permission errors in the log, or features (agent connections, backups, plugins, etc.) misbehaving after updating, please report it on [#16](https://github.com/andlo/ha-meshcentral-addon/issues/16) — we can ship a follow-up release with the profile disabled (`apparmor: false`) within minutes if needed.
+
+Addresses [#16](https://github.com/andlo/ha-meshcentral-addon/issues/16).
+
 ## \[0.2.16\] - 2026-08-21
 
 ### Documentation
