@@ -1,0 +1,47 @@
+#include <tunables/global>
+
+profile meshcentral flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+
+  # MeshCentral is a network-facing service: HTTPS UI, agent connections,
+  # Intel AMT/MPS, and outbound SMTP/update checks all need full network access.
+  network,
+
+  file,
+
+  signal (send) set=(kill,term,int,hup,cont),
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+  /tmp/** rwk,
+
+  # run.sh and jq (config.json generation)
+  /run.sh r,
+  /usr/bin/jq ix,
+
+  # Node.js runtime and MeshCentral itself (installed under /opt/meshcentral)
+  /usr/bin/node ix,
+  /opt/meshcentral/** rmix,
+
+  # Persistent storage: options.json plus the mapped addon_config/data volumes
+  # (meshcentral-data, meshcentral-files, meshcentral-backups, meshcentral-recordings)
+  /data/** rw,
+  /config/** rw,
+
+  # DNS resolution for outbound agent/SMTP/update connections
+  /etc/resolv.conf r,
+}
