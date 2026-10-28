@@ -1,5 +1,21 @@
 # Changelog
 
+## \[0.2.18\] - 2026-10-28
+
+### Security
+
+- Update MeshCentral to **1.3.1** (0.2.17 shipped 1.2.5). Users exposing MeshCentral to the internet should update promptly.
+
+### Changed
+
+- The MeshCentral version is now pinned in the Dockerfile (`MESHCENTRAL_VERSION`) instead of using an unpinned `npm install`. The add-on image is built once per release and reused for every install and reinstall, so the unpinned install was effectively frozen at whatever npm "latest" was on build day — and reinstalling never picked up newer MeshCentral releases. Pinning makes the shipped version explicit and each upgrade a deliberate release.
+
+### Documentation
+
+- Corrected the `self_update` section of DOCS.md, which stated that updating the add-on "always pulls the latest MeshCentral". Reinstalling the same add-on version reuses the same prebuilt image.
+
+Addresses [#18](https://github.com/andlo/ha-meshcentral-addon/issues/18).
+
 ## \[0.2.17\] - 2026-08-21
 
 ### Added
